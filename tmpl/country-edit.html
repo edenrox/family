@@ -1,0 +1,19 @@
+<html>
+<head>
+  <title>Country edit</title>
+</head>
+<body>
+  <h1>Country edit</h1>
+  <form action="/country/edit/{{.Code}}" method="post">
+    <table>
+      <tbody>
+        <tr><td>Code</td><td><input type="text" name="code" value="{{.Code}}" /></td></tr>
+        <tr><td>Name</td><td><input type="text" name="name" value="{{.Name}}" /></td></tr>
+        <tr><td></td><td>
+          <input type="submit" value="Save" />
+        </td></tr>
+      </tbody>
+    </table>
+  </form>
+</body>
+</html>

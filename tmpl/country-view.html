@@ -1,0 +1,21 @@
+<html>
+<head>
+  <title>Country view : {{.Name}}</title>
+</head>
+<body>
+  <h1>{{.Name}}</h1>
+  <p>Country view</p>
+  <table>
+    <tbody>
+      <tr><td>Code</td><td>{{.Code}}</td></tr>
+      <tr><td>Name</td><td>{{.Name}}</td></tr>
+      <tr><td>Actions</td><td>
+        <ul>
+          <li><a href="/country/edit/{{.Code}}">Edit</a></li>
+          <li><a href="/country/delete/{{.Code}}">Delete</a></li>
+        </ul>
+      </td></tr>
+    </tbody>
+  </table>
+</body>
+</html>

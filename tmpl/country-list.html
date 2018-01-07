@@ -1,0 +1,21 @@
+<html>
+<head>
+  <title>Country list</title>
+</head>
+<body>
+  <h1>Country list</h1>
+  <table>
+    <thead>
+      <tr><td>Code</td><td>Name</td></tr>
+    </thead>
+    <tbody>
+      {{range .}}
+      <tr>
+        <td>{{.Code}}</td>
+        <td><a href="/country/view/{{.Code}}">{{.Name}}</a></td></tr>
+      {{end}}
+    </tbody>
+  </table>
+  <p><a href="/country/add">Add country</a></p>
+</body>
+</html>
