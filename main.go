@@ -105,7 +105,7 @@ func countryAdd(w http.ResponseWriter, r *http.Request) {
 
 // Add a new country
 func countryEdit(w http.ResponseWriter, r *http.Request) {
-  parts := strings.Split(r.URL.Path, "/")
+	parts := strings.Split(r.URL.Path, "/")
 	if len(parts) < 4 {
 		http.Error(w, "Error, no country specified", 400)
 		return
@@ -131,18 +131,18 @@ func countryEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-  rows, err := db.Query("SELECT code, name FROM countries WHERE code=?", original_code)
-  if err != nil {
-    http.Error(w, fmt.Sprintf("Error reading country: %v", err), 500)
-    return
-  }
-  if !rows.Next() {
-    http.Error(w, fmt.Sprintf("Error, country (code: %s) not found", original_code), 404)
-    return
-  }
+	rows, err := db.Query("SELECT code, name FROM countries WHERE code=?", original_code)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error reading country: %v", err), 500)
+		return
+	}
+	if !rows.Next() {
+		http.Error(w, fmt.Sprintf("Error, country (code: %s) not found", original_code), 404)
+		return
+	}
 
-  var item Country
-  rows.Scan(&item.Code, &item.Name)
+	var item Country
+	rows.Scan(&item.Code, &item.Name)
 
 	t := template.Must(template.ParseFiles("tmpl/country-edit.html"))
 	err = t.Execute(w, item)
@@ -179,17 +179,17 @@ func countryDelete(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-  // Connect to the MySQL database
-  var err error
+	// Connect to the MySQL database
+	var err error
 	db, err = sql.Open("mysql", "ian:FI0wxB@tcp(192.168.1.82)/family")
 	if err != nil {
 		panic(err)
 	}
-  defer db.Close()
+	defer db.Close()
 
-  // Setup routes
+	// Setup routes
 	http.HandleFunc("/country/add", countryAdd)
-  http.HandleFunc("/country/edit/", countryEdit)
+	http.HandleFunc("/country/edit/", countryEdit)
 	http.HandleFunc("/country/delete/", countryDelete)
 	http.HandleFunc("/country/list", countryList)
 	http.HandleFunc("/country/view/", countryView)
