@@ -1,16 +1,19 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Country edit</title>
+  <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.min.css" />
 </head>
 <body>
   <h1>Country edit</h1>
   <form action="/country/edit/{{.Code}}" method="post">
-    <table>
+    <table class="table table-striped" style="width: 300px;">
       <tbody>
-        <tr><td>Code</td><td><input type="text" name="code" value="{{.Code}}" /></td></tr>
+        <tr><td>Code</td><td><input type="text" name="code" value="{{.Code}}" class="input-small" /></td></tr>
         <tr><td>Name</td><td><input type="text" name="name" value="{{.Name}}" /></td></tr>
         <tr><td></td><td>
-          <input type="submit" value="Save" />
+          <input type="submit" value="Save" class="btn btn-primary" />
+          <a href="/country/view/{{.Code}}" class="btn btn-danger">Cancel</a>
         </td></tr>
       </tbody>
     </table>

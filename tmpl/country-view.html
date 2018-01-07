@@ -1,21 +1,21 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Country view : {{.Name}}</title>
+  <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.min.css" />
 </head>
 <body>
-  <h1>{{.Name}}</h1>
-  <p>Country view</p>
-  <table>
+  <h1>Country: {{.Name}}</h1>
+  <table class="table table-striped" style="width: 300px;">
     <tbody>
       <tr><td>Code</td><td>{{.Code}}</td></tr>
       <tr><td>Name</td><td>{{.Name}}</td></tr>
       <tr><td>Actions</td><td>
-        <ul>
-          <li><a href="/country/edit/{{.Code}}">Edit</a></li>
-          <li><a href="/country/delete/{{.Code}}">Delete</a></li>
-        </ul>
+        <a href="/country/edit/{{.Code}}" class="btn btn-primary"><i class="icon-pencil icon-white"></i> Edit</a>
+        <a href="/country/delete/{{.Code}}" class="btn btn-danger"><i class="icon-remove icon-white"></i> Delete</a>
       </td></tr>
     </tbody>
   </table>
+  <p><a href="/country/list" class="btn btn-primary">&laquo; Country list</a></p>
 </body>
 </html>

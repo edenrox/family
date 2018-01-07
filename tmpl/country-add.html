@@ -1,16 +1,19 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>Country add</title>
+  <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.min.css" />
 </head>
 <body>
   <h1>Country add</h1>
   <form action="/country/add" method="post">
-    <table>
+    <table class="table table-striped"  style="width: 300px;">
       <tbody>
-        <tr><td>Code</td><td><input type="text" name="code" /></td></tr>
+        <tr><td>Code</td><td><input type="text" name="code" class="input-small" /></td></tr>
         <tr><td>Name</td><td><input type="text" name="name" /></td></tr>
         <tr><td></td><td>
-          <input type="submit" value="Add" />
+          <input type="submit" value="Add" class="btn btn-primary" />
+          <a href="/country/list" class="btn btn-danger">Cancel</a>
         </td></tr>
       </tbody>
     </table>

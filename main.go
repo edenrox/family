@@ -187,6 +187,9 @@ func main() {
 	}
 	defer db.Close()
 
+	// Setup static finals
+	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets/"))))
+
 	// Setup routes
 	http.HandleFunc("/country/add", countryAdd)
 	http.HandleFunc("/country/edit/", countryEdit)
