@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"flag"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"html/template"
@@ -180,8 +181,13 @@ func countryDelete(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	// Connect to the MySQL database
+	dsn := flag.String("database", "", "dsn for connecting to a mysql database")
+
+	flag.Parse()
+
+	fmt.Printf("Connecting to database: %s\n", *dsn)
 	var err error
-	db, err = sql.Open("mysql", "ian:FI0wxB@tcp(192.168.1.82)/family")
+	db, err = sql.Open("mysql", *dsn)
 	if err != nil {
 		panic(err)
 	}
