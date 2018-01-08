@@ -60,12 +60,11 @@ func countryAdd(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		stmt, err := db.Prepare("INSERT INTO countries (code, name) VALUES(?, ?)")
+		_, err := db.Exec("INSERT INTO countries (code, name) VALUES(?, ?)", item.Code, item.Name)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Error inserting country: %v", err), 500)
 			return
 		}
-		stmt.Exec(item.Code, item.Name)
 		http.Redirect(w, r, "/country/list", 302)
 		return
 	}
@@ -105,18 +104,11 @@ func countryEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rows, err := db.Query("SELECT code, name FROM countries WHERE code=?", original_code)
+	item, err := LoadCountryByCode(db, original_code)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Error reading country: %v", err), 500)
+		http.Error(w, fmt.Sprintf("Error loading country: %v", err), 500)
 		return
 	}
-	if !rows.Next() {
-		http.Error(w, fmt.Sprintf("Error, country (code: %s) not found", original_code), 404)
-		return
-	}
-
-	var item Country
-	rows.Scan(&item.Code, &item.Name)
 
 	t := template.Must(template.ParseFiles("tmpl/country/edit.html"))
 	err = t.Execute(w, item)
