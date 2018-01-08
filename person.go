@@ -115,7 +115,7 @@ func LoadPersonById(db *sql.DB, id int) (*Person, error) {
 	}
 	log.Printf("birthDate: %v", birthDateString)
 	if birthDateString.Valid {
-		item.BirthDate, err = time.Parse("2006-01-02T15:04:05Z", birthDateString.String)
+		item.BirthDate, err = time.Parse("2006-01-02", birthDateString.String)
 	}
 	if gender == "M" {
 		item.Gender = "Male"
