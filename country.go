@@ -17,6 +17,7 @@ func LoadCountryByCode(db *sql.DB, code string) (*Country, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	// Fetch the rows
 	if !rows.Next() {
@@ -37,6 +38,7 @@ func LoadCountryList(db *sql.DB) ([]Country, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	// Fetch the rows
 	var countries []Country

@@ -180,6 +180,20 @@ func personList(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func personCalendar(w http.ResponseWriter, r *http.Request) {
+	calendar, err := LoadPeopleCalendar(db)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error loading person calendar: %v", err), 500)
+		return
+	}
+
+	t := template.Must(template.ParseFiles("tmpl/person/calendar.html"))
+	err = t.Execute(w, calendar)
+	if err != nil {
+		panic(err)
+	}
+}
+
 func spouseDelete(w http.ResponseWriter, r *http.Request) {
 	person1Id, err := strconv.Atoi(r.FormValue("person1_id"))
 	person2Id, err := strconv.Atoi(r.FormValue("person2_id"))
@@ -241,6 +255,7 @@ func main() {
 	http.HandleFunc("/spouse/add", spouseAdd)
 	http.HandleFunc("/spouse/delete", spouseDelete)
 	http.HandleFunc("/person/list", personList)
+	http.HandleFunc("/person/calendar", personCalendar)
 	http.HandleFunc("/person/view/", personView)
 	http.HandleFunc("/country/add", countryAdd)
 	http.HandleFunc("/country/edit/", countryEdit)

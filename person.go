@@ -29,7 +29,7 @@ type Person struct {
 	Spouses    []SpouseLite
 }
 
-func buildFullName(firstName string, middleName string, lastName string, nickName string) string {
+func BuildFullName(firstName string, middleName string, lastName string, nickName string) string {
 	fullName := firstName
 	if nickName != "" {
 		fullName += " \"" + nickName + "\""
@@ -45,7 +45,7 @@ func buildFullName(firstName string, middleName string, lastName string, nickNam
 
 func (p *Person) FullName() string {
 	if p.fullName == "" {
-		p.fullName = buildFullName(p.FirstName, p.MiddleName, p.LastName, p.NickName)
+		p.fullName = BuildFullName(p.FirstName, p.MiddleName, p.LastName, p.NickName)
 	}
 	return p.fullName
 }
@@ -77,12 +77,14 @@ func LoadPersonLiteById(db *sql.DB, id int) (*PersonLite, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
+
 	if !rows.Next() {
 		return nil, fmt.Errorf("Person not found with id: %d", id)
 	}
 	var firstName, middleName, lastName, nickName string
 	rows.Scan(&firstName, &middleName, &lastName, &nickName)
-	fullName := buildFullName(firstName, middleName, lastName, nickName)
+	fullName := BuildFullName(firstName, middleName, lastName, nickName)
 	return &PersonLite{Id: id, Name: fullName}, nil
 }
 
@@ -92,6 +94,8 @@ func LoadPersonById(db *sql.DB, id int) (*Person, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
+
 	if !rows.Next() {
 		return nil, fmt.Errorf("Person not found with id: %d", id)
 	}
@@ -132,13 +136,14 @@ func LoadPersonLiteList(db *sql.DB) ([]PersonLite, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	var list []PersonLite
 	for rows.Next() {
 		var id int
 		var firstName, middleName, lastName, nickName string
 		rows.Scan(&id, &firstName, &middleName, &lastName, &nickName)
-		fullName := buildFullName(firstName, middleName, lastName, nickName)
+		fullName := BuildFullName(firstName, middleName, lastName, nickName)
 		item := PersonLite{Id: id, Name: fullName}
 		list = append(list, item)
 	}
@@ -151,13 +156,14 @@ func LoadChildrenPersonLite(db *sql.DB, personId int) ([]PersonLite, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	var list []PersonLite
 	for rows.Next() {
 		var id int
 		var firstName, middleName, lastName, nickName string
 		rows.Scan(&id, &firstName, &middleName, &lastName, &nickName)
-		fullName := buildFullName(firstName, middleName, lastName, nickName)
+		fullName := BuildFullName(firstName, middleName, lastName, nickName)
 		item := PersonLite{Id: id, Name: fullName}
 		list = append(list, item)
 	}

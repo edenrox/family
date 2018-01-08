@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>People calendar</title>
+  <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.min.css" />
+</head>
+<body>
+  <h1>People calendar</h1>
+  <table class="table table-striped" style="width: 500px">
+    <thead>
+      <tr><th>Month</th><th>Day</th><th>People</th><th>Event</th><th>Date</th></tr>
+    </thead>
+    <tbody>
+      {{range .Months}}
+      <tr><td colspan="5">{{.Name}}</td></tr>
+        {{range .People}}
+        <tr><td></td><td>{{.Day}}</td><td><a href="/person/view/{{.Person.Id}}">{{.Person.Name}}</a></td><td>Birthday</td><td></td></tr>
+        {{end}}
+      {{end}}
+    </tbody>
+  </table>
+  <p><a href="/person/list" class="btn btn-primary">&laquo; People list</a></p>
+</body>
+</html>
