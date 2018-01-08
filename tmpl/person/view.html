@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Person view : {{.FullName}}</title>
+  <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.min.css" />
+</head>
+<body>
+  <h1>{{.FullName}}</h1>
+  <table class="table table-striped" style="width: 300px;">
+    <tbody>
+      <tr><td colspan="2"><strong>Name</strong></td></tr>
+      <tr><td>First</td><td>{{.FirstName}}</td></tr>
+      {{if .MiddleName}}
+      <tr><td>Middle</td><td>{{.MiddleName}}</td></tr>
+      {{end}}
+      <tr><td>Last</td><td>{{.LastName}}</td></tr>
+      {{if .NickName}}
+      <tr><td>Nick</td><td>{{.NickName}}</td></tr>
+      {{end}}
+      <tr><td colspan="2"><strong>Birth</strong></td></tr>
+      <tr><td>Gender</td><td>{{.Gender}}</td></tr>
+      {{if .HasBirthDate}}
+      <tr><td>Date</td><td>{{.BirthDateFormatted}}</td></tr>
+      <tr><td>Age</td><td>{{.Age}}</td></tr>
+      {{end}}
+      <tr><td>Place</td><td>{{.BirthPlace}}</td></tr>
+      <tr><td colspan="2"><strong>Relationships</strong></td></tr>
+      {{with .Mother}}
+      <tr><td>Mother</td><td><a href="/person/view/{{.Id}}">{{.Name}}</a></td></tr>
+      {{end}}
+      {{with .Father}}
+      <tr><td>Father</td><td><a href="/person/view/{{.Id}}">{{.Name}}</a></td></tr>
+      {{end}}
+      <tr><td colspan="2">Children</td></tr>
+      {{range .Children}}
+      <tr><td></td><td><a href="/person/view/{{.Id}}">{{.Name}}</a></td></tr>
+      {{end}}
+      <tr><td colspan="2">Spouses</td></tr>
+      {{range .Spouses}}
+      <tr><td></td>
+        <td>
+         <a href="/person/view/{{.Person2.Id}}">{{.Person2.Name}}</a> - {{.StatusFormatted}}
+         <a href="/spouse/delete?person1_id={{.Person1.Id}}&person2_id={{.Person2.Id}}"><i class="icon-remove"></i></a>
+       </td></tr>
+      {{end}}
+      <tr><td></td><td><a href="/spouse/add?person1_id={{.Id}}" class="btn btn-primary"><i class="icon-plus icon-white"></i> Add Spouse</a></td></tr>
+    </tbody>
+  </table>
+  <p><a href="/person/list" class="btn btn-primary">&laquo; People list</a></p>
+</body>
+</html>

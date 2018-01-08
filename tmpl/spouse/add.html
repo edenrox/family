@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Add spouse : {{.Name}}</title>
+  <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.min.css" />
+</head>
+<body>
+  <h1>Add Spouse</h1>
+  <form action="/spouse/add" method="POST">
+    <table class="table table-striped" style="width: 400px;">
+      <tbody>
+        <tr><td>Person 1:</td><td><input type="text" name="person1_id" value="{{.Id}}"/><br/> {{.Name}}</td></tr>
+        <tr><td>Person 2:</td><td><input type="text" name="person2_id" /></td></tr>
+        <tr><td>Status:</td>
+          <td>
+            <select name="status">
+              <option value="1">Maried</option>
+              <option value="2">Dating</option>
+              <option value="3">Ex-Married</option>
+            </select>
+          </td></tr>
+        <tr><td></td>
+          <td>
+            <input type="submit" value="Save" class="btn btn-primary"/>
+            <a href="/person/view/{{.Id}}" class="btn btn-danger">Cancel</a>
+          </td></tr>
+      </tbody>
+    </table>
+  </form>
+</body>
+</html>
