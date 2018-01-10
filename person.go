@@ -22,7 +22,8 @@ type Person struct {
 	Gender     string
 	IsAlive    bool
 	BirthDate  time.Time
-	BirthPlace string
+	BirthCity  *CityLite
+	HomeCity   *CityLite
 	Mother     *PersonLite
 	Father     *PersonLite
 	Children   []PersonLite
@@ -94,9 +95,9 @@ func LoadPersonById(db *sql.DB, id int) (*Person, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
 	if !rows.Next() {
+		rows.Close()
 		return nil, fmt.Errorf("Person not found with id: %d", id)
 	}
 	var item Person
@@ -104,6 +105,7 @@ func LoadPersonById(db *sql.DB, id int) (*Person, error) {
 	var birthDateString sql.NullString
 	var gender string
 	err = rows.Scan(&item.Id, &item.FirstName, &item.MiddleName, &item.LastName, &item.NickName, &motherId, &fatherId, &birthDateString, &item.IsAlive, &homeCityId, &birthCityId, &gender)
+	rows.Close()
 	if err != nil {
 		return nil, err
 	}
@@ -121,6 +123,18 @@ func LoadPersonById(db *sql.DB, id int) (*Person, error) {
 		item.Gender = "Male"
 	} else {
 		item.Gender = "Female"
+	}
+	if birthCityId.Valid {
+		item.BirthCity, err = LoadCityById(db, int(birthCityId.Int64))
+		if err != nil {
+			return nil, err
+		}
+	}
+	if homeCityId.Valid {
+		item.HomeCity, _ = LoadCityById(db, int(homeCityId.Int64))
+		if err != nil {
+			return nil, err
+		}
 	}
 	item.Children, err = LoadChildrenPersonLite(db, id)
 	item.Spouses, err = LoadSpousesByPersonId(db, id)

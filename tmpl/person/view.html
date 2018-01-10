@@ -23,7 +23,13 @@
       <tr><td>Date</td><td>{{.BirthDateFormatted}}</td></tr>
       <tr><td>Age</td><td>{{.Age}}</td></tr>
       {{end}}
-      <tr><td>Place</td><td>{{.BirthPlace}}</td></tr>
+      {{if .BirthCity}}
+      <tr><td>City</td><td>{{.BirthCity.Format}}</td></tr>
+      {{end}}
+      {{if .HomeCity}}
+      <tr><td colspan="2"><strong>Home</strong></td></tr>
+      <tr><td>City</td><td>{{.HomeCity.Format}}</td></tr>
+      {{end}}
       <tr><td colspan="2"><strong>Relationships</strong></td></tr>
       {{with .Mother}}
       <tr><td>Mother</td><td><a href="/person/view/{{.Id}}">{{.Name}}</a></td></tr>
