@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>City add</title>
+  <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.min.css" />
+</head>
+<body>
+  <h1>City add</h1>
+  <form action="/city/add" method="post">
+    <table class="table table-striped"  style="width: 300px;">
+      <tbody>
+        <tr><td>Name</td><td><input type="text" name="name" /></td></tr>
+        <tr><td>Region</td><td><input type="text" name="region_id" class="input-small" /></td></tr>
+        <tr><td></td><td>
+          <input type="submit" value="Add" class="btn btn-primary" />
+          <a href="/city/list" class="btn btn-danger">Cancel</a>
+        </td></tr>
+      </tbody>
+    </table>
+  </form>
+</body>
+</html>

@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"flag"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
@@ -19,6 +20,7 @@ func countryList(w http.ResponseWriter, r *http.Request) {
 	countries, err := LoadCountryList(db)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error loading country list: %v", err), 500)
+		return
 	}
 
 	// Output the result
@@ -129,6 +131,7 @@ func countryDelete(w http.ResponseWriter, r *http.Request) {
 	err := DeleteCountryByCode(db, code)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error deleting country: %v", err), 500)
+		return
 	}
 	http.Redirect(w, r, "/country/list", 302)
 }
@@ -193,6 +196,7 @@ func spouseDelete(w http.ResponseWriter, r *http.Request) {
 	err = DeleteSpouse(db, person1Id, person2Id)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error deleting spouse: %v", err), 500)
+		return
 	}
 	http.Redirect(w, r, fmt.Sprintf("/person/view/%d", person1Id), 302)
 }
@@ -226,6 +230,55 @@ func spouseAdd(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func regionList(w http.ResponseWriter, r *http.Request) {
+	regions, err := LoadRegionList(db)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error loading regions: %v", err), 500)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(regions)
+}
+
+func cityAdd(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		cityName := r.FormValue("name")
+		regionId, err := strconv.Atoi(r.FormValue("region_id"))
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Invalid region_id: %s", r.FormValue("region_id")), 400)
+			return
+		}
+		_, err = InsertCity(db, cityName, regionId)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Error creating city: %v", err), 500)
+			return
+		}
+		http.Redirect(w, r, "/city/list", 302)
+	}
+
+	t := template.Must(template.ParseFiles("tmpl/city/add.html"))
+	err := t.Execute(w, nil)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func citySearch(w http.ResponseWriter, r *http.Request) {
+	prefix := strings.Trim(r.FormValue("prefix"), " \t")
+	if len(prefix) == 0 {
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(w, "[]")
+		return
+	}
+	cities, err := LoadCitiesByPrefix(db, prefix)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error loading cities: %v", err), 500)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(cities)
+}
+
 func main() {
 	// Connect to the MySQL database
 	dsn := flag.String("database", "", "dsn for connecting to a mysql database")
@@ -244,6 +297,11 @@ func main() {
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets/"))))
 
 	// Setup routes
+	//http.HandleFunc("/city/view/", cityView)
+	http.HandleFunc("/city/search", citySearch)
+	http.HandleFunc("/city/add", cityAdd)
+	//http.HandleFunc("/city/delete/", cityDelete)
+	http.HandleFunc("/region/list", regionList)
 	http.HandleFunc("/spouse/add", spouseAdd)
 	http.HandleFunc("/spouse/delete", spouseDelete)
 	http.HandleFunc("/person/list", personList)
