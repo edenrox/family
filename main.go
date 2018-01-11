@@ -271,6 +271,10 @@ func citySearch(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(cities)
 }
 
+func health(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "OK")
+}
+
 func main() {
 	// Connect to the MySQL database
 	dsn := flag.String("database", "", "dsn for connecting to a mysql database")
@@ -289,6 +293,7 @@ func main() {
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets/"))))
 
 	// Setup routes
+	http.HandleFunc("/health", health)
 	//http.HandleFunc("/city/view/", cityView)
 	http.HandleFunc("/city/search", citySearch)
 	http.HandleFunc("/city/add", cityAdd)
