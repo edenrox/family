@@ -5,11 +5,12 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"html/template"
 	"net/http"
 	"strconv"
 	"strings"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 // Connection to the MySQL database
@@ -24,8 +25,7 @@ func countryList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Output the result
-	t := template.Must(template.ParseFiles("tmpl/country/list.html"))
-	err = t.Execute(w, countries)
+	err = template.Must(template.ParseFiles("tmpl/country/list.html")).Execute(w, countries)
 	if err != nil {
 		panic(err)
 	}
@@ -43,8 +43,7 @@ func countryView(w http.ResponseWriter, r *http.Request) {
 	item, err := LoadCountryByCode(db, code)
 
 	// Output the result
-	t := template.Must(template.ParseFiles("tmpl/country/view.html"))
-	err = t.Execute(w, item)
+	err = template.Must(template.ParseFiles("tmpl/country/view.html")).Execute(w, item)
 	if err != nil {
 		panic(err)
 	}
@@ -71,8 +70,7 @@ func countryAdd(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t := template.Must(template.ParseFiles("tmpl/country/add.html"))
-	err := t.Execute(w, nil)
+	err := template.Must(template.ParseFiles("tmpl/country/add.html")).Execute(w, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -112,8 +110,7 @@ func countryEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t := template.Must(template.ParseFiles("tmpl/country/edit.html"))
-	err = t.Execute(w, item)
+	err = template.Must(template.ParseFiles("tmpl/country/edit.html")).Execute(w, item)
 	if err != nil {
 		panic(err)
 	}
@@ -154,8 +151,7 @@ func personView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t := template.Must(template.ParseFiles("tmpl/person/view.html"))
-	err = t.Execute(w, person)
+	err = template.Must(template.ParseFiles("tmpl/person/view.html")).Execute(w, person)
 	if err != nil {
 		panic(err)
 	}
@@ -168,8 +164,7 @@ func personList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t := template.Must(template.ParseFiles("tmpl/person/list.html"))
-	err = t.Execute(w, personList)
+	err = template.Must(template.ParseFiles("tmpl/person/list.html")).Execute(w, personList)
 	if err != nil {
 		panic(err)
 	}
@@ -182,8 +177,7 @@ func personCalendar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t := template.Must(template.ParseFiles("tmpl/person/calendar.html"))
-	err = t.Execute(w, calendar)
+	err = template.Must(template.ParseFiles("tmpl/person/calendar.html")).Execute(w, calendar)
 	if err != nil {
 		panic(err)
 	}
@@ -223,8 +217,7 @@ func spouseAdd(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t := template.Must(template.ParseFiles("tmpl/spouse/add.html"))
-	err = t.Execute(w, person1)
+	err = template.Must(template.ParseFiles("tmpl/spouse/add.html")).Execute(w, person1)
 	if err != nil {
 		panic(err)
 	}
@@ -256,8 +249,7 @@ func cityAdd(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/city/list", 302)
 	}
 
-	t := template.Must(template.ParseFiles("tmpl/city/add.html"))
-	err := t.Execute(w, nil)
+	err := template.Must(template.ParseFiles("tmpl/city/add.html")).Execute(w, nil)
 	if err != nil {
 		panic(err)
 	}
