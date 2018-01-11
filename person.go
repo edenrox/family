@@ -8,8 +8,9 @@ import (
 )
 
 type PersonLite struct {
-	Id   int
-	Name string
+	Id     int
+	Name   string
+	Gender string
 }
 
 type Person struct {
@@ -28,6 +29,7 @@ type Person struct {
 	Father     *PersonLite
 	Children   []PersonLite
 	Spouses    []SpouseLite
+	Siblings   []PersonLite
 }
 
 func BuildFullName(firstName string, middleName string, lastName string, nickName string) string {
@@ -74,7 +76,9 @@ func (p *Person) Age() int {
 
 func LoadPersonLiteById(db *sql.DB, id int) (*PersonLite, error) {
 	log.Printf("Load PersonLite id: %d", id)
-	rows, err := db.Query("SELECT first_name, middle_name, last_name, nick_name FROM people WHERE id=?", id)
+	rows, err := db.Query("SELECT id, first_name, middle_name, last_name, nick_name, gender"+
+		" FROM people"+
+		" WHERE id=?", id)
 	if err != nil {
 		return nil, err
 	}
@@ -83,10 +87,8 @@ func LoadPersonLiteById(db *sql.DB, id int) (*PersonLite, error) {
 	if !rows.Next() {
 		return nil, fmt.Errorf("Person not found with id: %d", id)
 	}
-	var firstName, middleName, lastName, nickName string
-	rows.Scan(&firstName, &middleName, &lastName, &nickName)
-	fullName := BuildFullName(firstName, middleName, lastName, nickName)
-	return &PersonLite{Id: id, Name: fullName}, nil
+	item := readPersonLiteFromRows(rows)
+	return &item, nil
 }
 
 func LoadPersonById(db *sql.DB, id int) (*Person, error) {
@@ -137,7 +139,14 @@ func LoadPersonById(db *sql.DB, id int) (*Person, error) {
 		}
 	}
 	item.Children, err = LoadChildrenPersonLite(db, id)
+	if err != nil {
+		return nil, err
+	}
 	item.Spouses, err = LoadSpousesByPersonId(db, id)
+	if err != nil {
+		return nil, err
+	}
+	item.Siblings, err = LoadSiblingsPersonLite(db, id)
 	if err != nil {
 		return nil, err
 	}
@@ -146,7 +155,9 @@ func LoadPersonById(db *sql.DB, id int) (*Person, error) {
 
 func LoadPersonLiteList(db *sql.DB) ([]PersonLite, error) {
 	log.Printf("Load PersonLite list")
-	rows, err := db.Query("SELECT id, first_name, middle_name, last_name, nick_name FROM people ORDER BY last_name, first_name, middle_name")
+	rows, err := db.Query("SELECT id, first_name, middle_name, last_name, nick_name, gender" +
+		" FROM people" +
+		" ORDER BY last_name, first_name, middle_name")
 	if err != nil {
 		return nil, err
 	}
@@ -154,11 +165,7 @@ func LoadPersonLiteList(db *sql.DB) ([]PersonLite, error) {
 
 	var list []PersonLite
 	for rows.Next() {
-		var id int
-		var firstName, middleName, lastName, nickName string
-		rows.Scan(&id, &firstName, &middleName, &lastName, &nickName)
-		fullName := BuildFullName(firstName, middleName, lastName, nickName)
-		item := PersonLite{Id: id, Name: fullName}
+		item := readPersonLiteFromRows(rows)
 		list = append(list, item)
 	}
 	return list, nil
@@ -166,7 +173,9 @@ func LoadPersonLiteList(db *sql.DB) ([]PersonLite, error) {
 
 func LoadChildrenPersonLite(db *sql.DB, personId int) ([]PersonLite, error) {
 	log.Printf("Load children PersonLite list, id: %d", personId)
-	rows, err := db.Query("SELECT id, first_name, middle_name, last_name, nick_name FROM people WHERE father_id = ? OR mother_id = ?", personId, personId)
+	rows, err := db.Query("SELECT id, first_name, middle_name, last_name, nick_name, gender"+
+		" FROM people "+
+		" WHERE father_id = ? OR mother_id = ?", personId, personId)
 	if err != nil {
 		return nil, err
 	}
@@ -174,12 +183,42 @@ func LoadChildrenPersonLite(db *sql.DB, personId int) ([]PersonLite, error) {
 
 	var list []PersonLite
 	for rows.Next() {
-		var id int
-		var firstName, middleName, lastName, nickName string
-		rows.Scan(&id, &firstName, &middleName, &lastName, &nickName)
-		fullName := BuildFullName(firstName, middleName, lastName, nickName)
-		item := PersonLite{Id: id, Name: fullName}
+		item := readPersonLiteFromRows(rows)
 		list = append(list, item)
 	}
 	return list, nil
+}
+
+func LoadSiblingsPersonLite(db *sql.DB, personId int) ([]PersonLite, error) {
+	log.Printf("Load sibling PersonLite list, id: %d", personId)
+	row := db.QueryRow("SELECT father_id, mother_id FROM people WHERE id=?", personId)
+	var fatherId, motherId int
+	row.Scan(&fatherId, &motherId)
+
+	rows, err := db.Query("SELECT id, first_name, middle_name, last_name, nick_name, gender"+
+		" FROM people"+
+		" WHERE father_id=? AND mother_id=? AND id!=?", fatherId, motherId, personId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var list []PersonLite
+	for rows.Next() {
+		item := readPersonLiteFromRows(rows)
+		list = append(list, item)
+	}
+	return list, nil
+}
+
+func readPersonLiteFromRows(rows *sql.Rows) PersonLite {
+	var id int
+	var firstName, middleName, lastName, nickName, gender string
+	rows.Scan(&id, &firstName, &middleName, &lastName, &nickName, &gender)
+	if gender == "M" {
+		gender = "Male"
+	} else {
+		gender = "Female"
+	}
+	return PersonLite{Id: id, Name: BuildFullName(firstName, middleName, lastName, nickName), Gender: gender}
 }

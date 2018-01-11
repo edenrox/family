@@ -41,6 +41,10 @@
       {{range .Children}}
       <tr><td></td><td><a href="/person/view/{{.Id}}">{{.Name}}</a></td></tr>
       {{end}}
+      <tr><td colspan="2">Siblings</td></tr>
+      {{range .Siblings}}
+      <tr><td></td><td><a href="/person/view/{{.Id}}">{{.Name}}</a></td></tr>
+      {{end}}
       <tr><td colspan="2">Spouses</td></tr>
       {{range .Spouses}}
       <tr><td></td>

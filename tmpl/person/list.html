@@ -8,13 +8,17 @@
   <h1>People list</h1>
   <table class="table table-striped" style="width: 300px">
     <thead>
-      <tr><td>Id</td><td>Name</td></tr>
+      <tr>
+        <th>Name</th>
+        <th>Gender</th>
+      </tr>
     </thead>
     <tbody>
       {{range .}}
       <tr>
-        <td>{{.Id}}</td>
-        <td><a href="/person/view/{{.Id}}">{{.Name}}</a></td></tr>
+        <td><a href="/person/view/{{.Id}}">{{.Name}}</a></td>
+        <td>{{.Gender}}</td>
+      </tr>
       {{end}}
     </tbody>
   </table>
