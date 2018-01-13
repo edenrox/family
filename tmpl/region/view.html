@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Region view : {{.Region.Name}}</title>
+  <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.min.css" />
+</head>
+<body>
+  {{with .Region}}
+  <h1>Region: {{.Name}}</h1>
+  <table class="table table-striped" style="width: 300px;">
+    <tbody>
+      <tr><td>Id</td><td>{{.Id}}</td></tr>
+      <tr><td>Code</td><td>{{.Code}}</td></tr>
+      <tr><td>Name</td><td>{{.Name}}</td></tr>
+      <tr><td>Country</td><td><a href="/country/view/{{.CountryCode}}">{{.CountryName}}</a></td></tr>
+      <tr><td>Actions</td><td>
+        <a href="/region/edit/{{.Id}}" class="btn btn-primary"><i class="icon-pencil icon-white"></i> Edit</a>
+        <a href="/region/delete/{{.Id}}" class="btn btn-danger"><i class="icon-remove icon-white"></i> Delete</a>
+      </td></tr>
+    </tbody>
+  </table>
+  {{end}}
+  <h2>Cities</h2>
+  <table class="table table-striped" style="width:300px;">
+    <thead>
+      <tr><th>Name</th></tr>
+    </thead>
+    <tbody>
+      {{range .Cities}}
+      <tr>
+        <td><a href="/city/view/{{.Id}}">{{.Name}}</a></td></tr>
+      </tr>
+      {{end}}
+    </tbody>
+    <tfoot>
+        <tr><td><a href="/city/add" class="btn btn-primary"><i class="icon-plus icon-white"></i> Add a City</a></td></tr>
+      </tfoot>
+  </table>
+  <p><a href="/country/view/{{.Region.CountryCode}}" class="btn btn-primary">&laquo; View {{.Region.CountryName}}</a></p>
+</body>
+</html>

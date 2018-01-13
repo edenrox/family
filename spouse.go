@@ -26,7 +26,7 @@ func (s *SpouseLite) StatusFormatted() string {
 }
 
 func LoadSpousesByPersonId(db *sql.DB, personId int) ([]SpouseLite, error) {
-	log.Printf("Loud Spouses personId: %d", personId)
+	trace(traceName(fmt.Sprintf("LoadSpousesByPersonId(%d)", personId)))
 	rows, err := db.Query("SELECT person1_id, person2_id, status FROM spouses WHERE person1_id=? OR person2_id=? ORDER BY status", personId, personId)
 	if err != nil {
 		return nil, err

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Region add</title>
+  <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.min.css" />
+</head>
+<body>
+  <h1>Region add</h1>
+  <form action="/region/add" method="post">
+    <table class="table table-striped"  style="width: 300px;">
+      <tbody>
+        <tr><td>Name</td><td><input type="text" name="name" /></td></tr>
+        <tr><td>Code</td><td><input type="text" name="code" class="input-small" /></td></tr>
+        <tr><td>Country</td><td>
+<select name="country_code">
+{{range .}}
+  <option value="{{.Code}}">{{.Name}}</option>
+{{end}}
+</select></td></tr>
+        <tr><td></td><td>
+          <input type="submit" value="Add" class="btn btn-primary" />
+          <a href="/country/list" class="btn btn-danger">Cancel</a>
+        </td></tr>
+      </tbody>
+    </table>
+  </form>
+</body>
+</html>

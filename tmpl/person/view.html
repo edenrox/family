@@ -24,11 +24,11 @@
       <tr><td>Age</td><td>{{.Age}}</td></tr>
       {{end}}
       {{if .BirthCity}}
-      <tr><td>City</td><td>{{.BirthCity.Format}}</td></tr>
+      <tr><td>City</td><td><a href="/city/view/{{.BirthCity.Id}}">{{.BirthCity.Format}}</a></td></tr>
       {{end}}
       {{if .HomeCity}}
       <tr><td colspan="2"><strong>Home</strong></td></tr>
-      <tr><td>City</td><td>{{.HomeCity.Format}}</td></tr>
+      <tr><td>City</td><td><a href="/city/view/{{.HomeCity.Id}}">{{.HomeCity.Format}}</a></td></tr>
       {{end}}
       <tr><td colspan="2"><strong>Relationships</strong></td></tr>
       {{with .Mother}}

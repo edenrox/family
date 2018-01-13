@@ -41,9 +41,26 @@ func countryView(w http.ResponseWriter, r *http.Request) {
 	var code = parts[3]
 
 	item, err := LoadCountryByCode(db, code)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error loading country: %v", err), 500)
+		return
+	}
+	regions, err := LoadRegionsByCountryCode(db, code)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error loading regions: %v", err), 500)
+		return
+	}
+
+	data := struct {
+		Country *Country
+		Regions []RegionLite
+	}{
+		item,
+		regions,
+	}
 
 	// Output the result
-	err = template.Must(template.ParseFiles("tmpl/country/view.html")).Execute(w, item)
+	err = template.Must(template.ParseFiles("tmpl/country/view.html")).Execute(w, data)
 	if err != nil {
 		panic(err)
 	}
@@ -83,7 +100,7 @@ func countryEdit(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error, no country specified", 400)
 		return
 	}
-	var original_code = parts[3]
+	var originalCode = parts[3]
 
 	if r.Method == "POST" {
 		item := Country{
@@ -95,7 +112,7 @@ func countryEdit(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		_, err := db.Exec("UPDATE countries SET code=?, name=? WHERE code=?", item.Code, item.Name, original_code)
+		_, err := db.Exec("UPDATE countries SET code=?, name=? WHERE code=?", item.Code, item.Name, originalCode)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Error updating country: %v", err), 500)
 			return
@@ -104,7 +121,7 @@ func countryEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	item, err := LoadCountryByCode(db, original_code)
+	item, err := LoadCountryByCode(db, originalCode)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error loading country: %v", err), 500)
 		return
@@ -223,7 +240,7 @@ func spouseAdd(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func regionList(w http.ResponseWriter, r *http.Request) {
+func regionJsonList(w http.ResponseWriter, r *http.Request) {
 	regions, err := LoadRegionList(db)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error loading regions: %v", err), 500)
@@ -231,6 +248,107 @@ func regionList(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(regions)
+}
+
+func regionView(w http.ResponseWriter, r *http.Request) {
+	parts := strings.Split(r.URL.Path, "/")
+	if len(parts) < 4 {
+		http.Error(w, "Error, no region specified", 400)
+		return
+	}
+	regionId, err := strconv.Atoi(parts[3])
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error parsing regionId: %v", err), 400)
+		return
+	}
+
+	region, err := LoadRegionById(db, regionId)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error loading region: %v", err), 500)
+		return
+	}
+	cities, err := LoadCitiesByRegionId(db, regionId)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error loading cities: %v", err), 500)
+		return
+	}
+
+	data := struct {
+		Region *RegionLite
+		Cities []CityLite
+	}{
+		region,
+		cities,
+	}
+
+	err = template.Must(template.ParseFiles("tmpl/region/view.html")).Execute(w, data)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func regionAdd(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		regionName := r.FormValue("name")
+		regionCode := r.FormValue("code")
+		countryCode := r.FormValue("country_code")
+		_, err := InsertRegion(db, regionName, regionCode, countryCode)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Error creating city: %v", err), 500)
+			return
+		}
+		http.Redirect(w, r, fmt.Sprintf("/country/view/%s", countryCode), 302)
+		return
+	}
+
+	countries, err := LoadCountryList(db)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error reading countries: %v", err), 500)
+		return
+	}
+
+	err = template.Must(template.ParseFiles("tmpl/region/add.html")).Execute(w, countries)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func cityView(w http.ResponseWriter, r *http.Request) {
+	parts := strings.Split(r.URL.Path, "/")
+	if len(parts) < 4 {
+		http.Error(w, "Error, no city specified", 400)
+		return
+	}
+	cityId, err := strconv.Atoi(parts[3])
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error parsing cityId: %v", err), 400)
+		return
+	}
+
+	city, err := LoadCityById(db, cityId)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error loading city: %v", err), 500)
+		return
+	}
+
+	personList, err := LoadPersonLiteListByHomeCityId(db, cityId)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error loading people: %v", err), 500)
+		return
+	}
+
+	data := struct {
+		City   *CityLite
+		People []PersonLite
+	}{
+		city,
+		personList,
+	}
+
+	err = template.Must(template.ParseFiles("tmpl/city/view.html")).Execute(w, data)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func cityAdd(w http.ResponseWriter, r *http.Request) {
@@ -246,7 +364,7 @@ func cityAdd(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, fmt.Sprintf("Error creating city: %v", err), 500)
 			return
 		}
-		http.Redirect(w, r, "/city/list", 302)
+		http.Redirect(w, r, fmt.Sprintf("/region/view/%d", regionId), 302)
 	}
 
 	err := template.Must(template.ParseFiles("tmpl/city/add.html")).Execute(w, nil)
@@ -255,7 +373,7 @@ func cityAdd(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func citySearch(w http.ResponseWriter, r *http.Request) {
+func cityJsonSearch(w http.ResponseWriter, r *http.Request) {
 	prefix := strings.Trim(r.FormValue("prefix"), " \t")
 	if len(prefix) == 0 {
 		w.Header().Set("Content-Type", "application/json")
@@ -294,11 +412,13 @@ func main() {
 
 	// Setup routes
 	http.HandleFunc("/health", health)
-	//http.HandleFunc("/city/view/", cityView)
-	http.HandleFunc("/city/search", citySearch)
+	http.HandleFunc("/city/view/", cityView)
+	http.HandleFunc("/city/json/search", cityJsonSearch)
 	http.HandleFunc("/city/add", cityAdd)
 	//http.HandleFunc("/city/delete/", cityDelete)
-	http.HandleFunc("/region/list", regionList)
+	http.HandleFunc("/region/add", regionAdd)
+	http.HandleFunc("/region/json/list", regionJsonList)
+	http.HandleFunc("/region/view/", regionView)
 	http.HandleFunc("/spouse/add", spouseAdd)
 	http.HandleFunc("/spouse/delete", spouseDelete)
 	http.HandleFunc("/person/list", personList)

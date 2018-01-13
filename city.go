@@ -17,9 +17,33 @@ func (c *CityLite) Format() string {
 	return fmt.Sprintf("%s, %s, %s", c.Name, c.RegionAbbr, c.CountryAbbr)
 }
 
+func readCityListFromRows(rows *sql.Rows) ([]CityLite, error) {
+	var cities []CityLite
+	for rows.Next() {
+		city, err := readCityFromRows(rows)
+		if err != nil {
+			return nil, err
+		}
+		cities = append(cities, *city)
+	}
+	return cities, nil
+}
+
+func readCityFromRows(rows *sql.Rows) (*CityLite, error) {
+	city := CityLite{}
+	err := rows.Scan(&city.Id, &city.Name, &city.RegionAbbr, &city.CountryAbbr)
+	if err != nil {
+		return nil, err
+	}
+	return &city, nil
+}
+
 func LoadCityById(db *sql.DB, id int) (*CityLite, error) {
-	log.Printf("Load CityLite id: %d", id)
-	rows, err := db.Query("SELECT city_name, region_code, country_code FROM city_view WHERE city_id=?", id)
+	defer trace(traceName(fmt.Sprintf("LoadCityById(%d)", id)))
+	rows, err := db.Query(
+		"SELECT city_id, city_name, region_code, country_code"+
+			" FROM city_view "+
+			" WHERE city_id=?", id)
 	if err != nil {
 		return nil, err
 	}
@@ -28,33 +52,56 @@ func LoadCityById(db *sql.DB, id int) (*CityLite, error) {
 		return nil, fmt.Errorf("Error, city not found (id: %d)", id)
 	}
 
-	city := CityLite{Id: id}
-	err = rows.Scan(&city.Name, &city.RegionAbbr, &city.CountryAbbr)
+	city, err := readCityFromRows(rows)
 	if err != nil {
 		return nil, err
 	}
-	return &city, nil
+	return city, nil
 }
 
-func LoadCitiesByPrefix(db *sql.DB, prefix string) ([]CityLite, error) {
-	log.Printf("Load Cities by prefix:: %s", prefix)
-	prefix = prefix + "%"
-	rows, err := db.Query("SELECT city_id, city_name, region_code, country_code FROM city_view WHERE city_name LIKE ?", prefix)
+func LoadCitiesByRegionId(db *sql.DB, regionId int) ([]CityLite, error) {
+	defer trace(traceName(fmt.Sprintf("LoadCitiesByRegionId(%d)", regionId)))
+	rows, err := db.Query(
+		"SELECT city_id, city_name, region_code, country_code"+
+			" FROM city_view"+
+			" WHERE region_id=?"+
+			" ORDER BY city_name", regionId)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var cities []CityLite
-	for rows.Next() {
-		city := CityLite{}
-		err = rows.Scan(&city.Id, &city.Name, &city.RegionAbbr, &city.CountryAbbr)
-		if err != nil {
-			return nil, err
-		}
-		cities = append(cities, city)
+	return readCityListFromRows(rows)
+}
+
+func LoadCitiesByCountryCode(db *sql.DB, countryCode string) ([]CityLite, error) {
+	defer trace(traceName(fmt.Sprintf("LoadCitiesByCountryCode(%s)", countryCode)))
+	rows, err := db.Query(
+		"SELECT city_id, city_name, region_code, country_code"+
+			" FROM city_view"+
+			" WHERE country_code=?"+
+			" ORDER BY region_code, city_name", countryCode)
+	if err != nil {
+		return nil, err
 	}
-	return cities, nil
+	defer rows.Close()
+
+	return readCityListFromRows(rows)
+}
+
+func LoadCitiesByPrefix(db *sql.DB, prefix string) ([]CityLite, error) {
+	defer trace(traceName(fmt.Sprintf("LoadCitiesByPrefix(%s)", prefix)))
+	prefix = prefix + "%"
+	rows, err := db.Query(
+		"SELECT city_id, city_name, region_code, country_code"+
+			" FROM city_view"+
+			" WHERE city_name LIKE ?", prefix)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return readCityListFromRows(rows)
 }
 
 func DeleteCity(db *sql.DB, id int) error {
