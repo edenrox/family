@@ -1,12 +1,13 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Country view : {{.Country.Name}}</title>
-  <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.min.css" />
-</head>
-<body>
+{{define "title"}}Country : {{.Country.Name}}{{end}}
+{{define "content"}}
   {{with .Country}}
-  <h1>Country: {{.Name}}</h1>
+  <div class="page-header">
+    <h1>{{.Name}}</h1>
+  </div>
+  <ul class="breadcrumb">
+    <li><a href="/country/list">Countries</a> <span class="divider">&raquo;</span></li>
+    <li class="active">{{.Name}}</li>
+  </ul>
   <table class="table table-striped" style="width: 300px;">
     <tbody>
       <tr><td>Code</td><td>{{.Code}}</td></tr>
@@ -21,19 +22,18 @@
   <h2>Regions</h2>
   <table class="table table-striped" style="width:300px;">
     <thead>
-      <tr><th>Name</th></tr>
+      <tr><th>Name</th><th>Code</th></tr>
     </thead>
     <tbody>
       {{range .Regions}}
       <tr>
-        <td><a href="/region/view/{{.Id}}">{{.Name}}</a></td></tr>
+        <td><a href="/region/view/{{.Id}}">{{.Name}}</a></td>
+        <td>{{.Code}}</td>
       </tr>
       {{end}}
     </tbody>
     <tfoot>
-      <tr><td><a href="/region/add" class="btn btn-primary"><i class="icon-plus icon-white"></i> Add a Region</a></td></tr>
+      <tr><td><a href="/region/add?country_code={{.Country.Code}}" class="btn btn-primary"><i class="icon-plus icon-white"></i> Add a Region</a></td></tr>
     </tfoot>
   </table>
-  <p><a href="/country/list" class="btn btn-primary">&laquo; Country list</a></p>
-</body>
-</html>
+{{end}}

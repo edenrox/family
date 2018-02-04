@@ -1,11 +1,13 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Add spouse : {{.Name}}</title>
-  <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.min.css" />
-</head>
-<body>
-  <h1>Add Spouse</h1>
+{{define "title"}}{{.Name}} : Add Spouse{{end}}
+{{define "content"}}
+  <div class="page-header">
+    <h1>{{.Name}} : Add a Spouse</h1>
+  </div>
+  <ul class="breadcrumb">
+    <li><a href="/person/list">People</a> <span class="divider">&raquo;</span></li>
+    <li><a href="/person/view/{{.Id}}">{{.Name}}</a> <span class="divider">&raquo;</span></li>
+    <li class="active">Add Spouse</li>
+  </ul>
   <form action="/spouse/add" method="POST">
     <table class="table table-striped" style="width: 400px;">
       <tbody>
@@ -27,5 +29,4 @@
       </tbody>
     </table>
   </form>
-</body>
-</html>
+{{end}}

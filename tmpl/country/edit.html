@@ -1,11 +1,13 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Country edit</title>
-  <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.min.css" />
-</head>
-<body>
-  <h1>Country edit</h1>
+{{define "title"}}Country : Edit {{.Name}}{{end}}
+{{define "content"}}
+  <div class="page-header">
+    <h1>Edit {{.Name}}</h1>
+  </div>
+  <ul class="breadcrumb">
+    <li><a href="/country/list">Countries</a> <span class="divider">&raquo;</span></li>
+    <li><a href="/country/view/{{.Code}}">{{.Name}}</a> <span class="divider">&raquo;</span></li>
+    <li class="active">Edit</li>
+  </ul>
   <form action="/country/edit/{{.Code}}" method="post">
     <table class="table table-striped" style="width: 300px;">
       <tbody>
@@ -20,3 +22,4 @@
   </form>
 </body>
 </html>
+{{end}}

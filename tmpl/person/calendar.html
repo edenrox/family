@@ -1,11 +1,12 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>People calendar</title>
-  <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.min.css" />
-</head>
-<body>
-  <h1>People calendar</h1>
+{{define "title"}}People Calendar{{end}}
+{{define "content"}}
+  <div class="page-header">
+    <h1>People Calendar</h1>
+  </div>
+  <ul class="breadcrumb">
+    <li><a href="/person/list">People</a> <span class="divider">&raquo;</span></li>
+    <li class="active">Calendar</li>
+  </ul>
   <table class="table table-striped" style="width: 600px">
     <thead>
       <tr><th>Month</th><th>Day</th><th>People</th><th>Event</th><th>Date</th></tr>
@@ -26,5 +27,4 @@
     </tbody>
   </table>
   <p><a href="/person/list" class="btn btn-primary">&laquo; People list</a></p>
-</body>
-</html>
+{{end}}

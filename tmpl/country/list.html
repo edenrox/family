@@ -1,11 +1,11 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Country list</title>
-  <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.min.css" />
-</head>
-<body>
-  <h1>Country list</h1>
+{{define "title"}}Country list{{end}}
+{{define "content"}}
+  <div class="page-header">
+    <h1>Country list</h1>
+  </div>
+  <ul class="breadcrumb">
+    <li class="active">Countries</li>
+  </ul>
   <table class="table table-striped" style="width: 300px">
     <thead>
       <tr><td>Code</td><td>Name</td></tr>
@@ -19,5 +19,4 @@
     </tbody>
   </table>
   <p><a href="/country/add" class="btn btn-primary"><i class="icon-plus icon-white"></i> Add a Country</a></p>
-</body>
-</html>
+{{end}}

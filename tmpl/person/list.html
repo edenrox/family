@@ -1,11 +1,11 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>People list</title>
-  <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.min.css" />
-</head>
-<body>
-  <h1>People list</h1>
+{{define "title"}}People List{{end}}
+{{define "content"}}
+  <div class="page-header">
+    <h1>People List</h1>
+  </div>
+  <ul class="breadcrumb">
+    <li class="active">People</li>
+  </ul>
   <table class="table table-striped" style="width: 300px">
     <thead>
       <tr>
@@ -23,5 +23,4 @@
     </tbody>
   </table>
   <p><a href="/person/add" class="btn btn-primary"><i class="icon-plus icon-white"></i> Add a Person</a></p>
-</body>
-</html>
+{{end}}

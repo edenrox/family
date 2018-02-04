@@ -25,7 +25,7 @@ func countryList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Output the result
-	err = template.Must(template.ParseFiles("tmpl/country/list.html")).Execute(w, countries)
+	err = template.Must(template.ParseFiles("tmpl/layout/main.html", "tmpl/country/list.html")).Execute(w, countries)
 	if err != nil {
 		panic(err)
 	}
@@ -60,7 +60,7 @@ func countryView(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Output the result
-	err = template.Must(template.ParseFiles("tmpl/country/view.html")).Execute(w, data)
+	err = template.Must(template.ParseFiles("tmpl/layout/main.html", "tmpl/country/view.html")).Execute(w, data)
 	if err != nil {
 		panic(err)
 	}
@@ -87,7 +87,7 @@ func countryAdd(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := template.Must(template.ParseFiles("tmpl/country/add.html")).Execute(w, nil)
+	err := template.Must(template.ParseFiles("tmpl/layout/main.html", "tmpl/country/add.html")).Execute(w, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -127,7 +127,7 @@ func countryEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = template.Must(template.ParseFiles("tmpl/country/edit.html")).Execute(w, item)
+	err = template.Must(template.ParseFiles("tmpl/layout/main.html", "tmpl/country/edit.html")).Execute(w, item)
 	if err != nil {
 		panic(err)
 	}
@@ -168,7 +168,7 @@ func personView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = template.Must(template.ParseFiles("tmpl/person/view.html")).Execute(w, person)
+	err = template.Must(template.ParseFiles("tmpl/layout/main.html", "tmpl/person/view.html")).Execute(w, person)
 	if err != nil {
 		panic(err)
 	}
@@ -181,7 +181,7 @@ func personList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = template.Must(template.ParseFiles("tmpl/person/list.html")).Execute(w, personList)
+	err = template.Must(template.ParseFiles("tmpl/layout/main.html", "tmpl/person/list.html")).Execute(w, personList)
 	if err != nil {
 		panic(err)
 	}
@@ -194,7 +194,7 @@ func personCalendar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = template.Must(template.ParseFiles("tmpl/person/calendar.html")).Execute(w, calendar)
+	err = template.Must(template.ParseFiles("tmpl/layout/main.html", "tmpl/person/calendar.html")).Execute(w, calendar)
 	if err != nil {
 		panic(err)
 	}
@@ -234,7 +234,7 @@ func spouseAdd(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = template.Must(template.ParseFiles("tmpl/spouse/add.html")).Execute(w, person1)
+	err = template.Must(template.ParseFiles("tmpl/layout/main.html", "tmpl/spouse/add.html")).Execute(w, person1)
 	if err != nil {
 		panic(err)
 	}
@@ -281,7 +281,7 @@ func regionView(w http.ResponseWriter, r *http.Request) {
 		cities,
 	}
 
-	err = template.Must(template.ParseFiles("tmpl/region/view.html")).Execute(w, data)
+	err = template.Must(template.ParseFiles("tmpl/layout/main.html", "tmpl/region/view.html")).Execute(w, data)
 	if err != nil {
 		panic(err)
 	}
@@ -307,7 +307,15 @@ func regionAdd(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = template.Must(template.ParseFiles("tmpl/region/add.html")).Execute(w, countries)
+	data := struct {
+		Countries           []Country
+		SelectedCountryCode string
+	}{
+		countries,
+		r.FormValue("country_code"),
+	}
+
+	err = template.Must(template.ParseFiles("tmpl/layout/main.html", "tmpl/region/add.html")).Execute(w, data)
 	if err != nil {
 		panic(err)
 	}
@@ -330,6 +338,11 @@ func cityView(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Error loading city: %v", err), 500)
 		return
 	}
+	region, err := LoadRegionById(db, city.RegionId)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error loading region: %v", err), 500)
+		return
+	}
 
 	personList, err := LoadPersonLiteListByHomeCityId(db, cityId)
 	if err != nil {
@@ -339,13 +352,15 @@ func cityView(w http.ResponseWriter, r *http.Request) {
 
 	data := struct {
 		City   *CityLite
+		Region *RegionLite
 		People []PersonLite
 	}{
 		city,
+		region,
 		personList,
 	}
 
-	err = template.Must(template.ParseFiles("tmpl/city/view.html")).Execute(w, data)
+	err = template.Must(template.ParseFiles("tmpl/layout/main.html", "tmpl/city/view.html")).Execute(w, data)
 	if err != nil {
 		panic(err)
 	}

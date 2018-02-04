@@ -1,12 +1,14 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Region view : {{.Region.Name}}</title>
-  <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.min.css" />
-</head>
-<body>
+{{define "title"}}Region : {{.Region.Name}}{{end}}
+{{define "content"}}
   {{with .Region}}
-  <h1>Region: {{.Name}}</h1>
+  <div class="page-header">
+    <h1>{{.Name}}</h1>
+  </div>
+  <ul class="breadcrumb">
+    <li><a href="/country/list">Countries</a> <span class="divider">&raquo;</span></li>
+    <li><a href="/country/view/{{.CountryCode}}">{{.CountryName}}</a> <span class="divider">&raquo;</span></li>
+    <li class="active">{{.Name}}</li>
+  </ul>
   <table class="table table-striped" style="width: 300px;">
     <tbody>
       <tr><td>Id</td><td>{{.Id}}</td></tr>
@@ -37,5 +39,4 @@
       </tfoot>
   </table>
   <p><a href="/country/view/{{.Region.CountryCode}}" class="btn btn-primary">&laquo; View {{.Region.CountryName}}</a></p>
-</body>
-</html>
+{{end}}

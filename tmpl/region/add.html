@@ -1,11 +1,12 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Region add</title>
-  <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.min.css" />
-</head>
-<body>
-  <h1>Region add</h1>
+{{define "title"}}Region : Add{{end}}
+{{define "content"}}
+  <div class="page-header">
+    <h1>Add a Region</h1>
+  </div>
+  <ul class="breadcrumb">
+    <li><a href="#">Regions</a> <span class="divider">&raquo;</span></li>
+    <li class="active">Add Region</li>
+  </ul>
   <form action="/region/add" method="post">
     <table class="table table-striped"  style="width: 300px;">
       <tbody>
@@ -13,8 +14,8 @@
         <tr><td>Code</td><td><input type="text" name="code" class="input-small" /></td></tr>
         <tr><td>Country</td><td>
 <select name="country_code">
-{{range .}}
-  <option value="{{.Code}}">{{.Name}}</option>
+{{range .Countries}}
+  <option value="{{.Code}}" {{if eq .Code $.SelectedCountryCode}}selected="selected"{{end}}>{{.Name}}</option>
 {{end}}
 </select></td></tr>
         <tr><td></td><td>
@@ -24,5 +25,4 @@
       </tbody>
     </table>
   </form>
-</body>
-</html>
+{{end}}

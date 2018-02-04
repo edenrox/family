@@ -1,18 +1,21 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>City view : {{.City.Name}}</title>
-  <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.min.css" />
-</head>
-<body>
+{{define "title"}}City : {{.City.Name}}{{end}}
+{{define "content"}}
   {{with .City}}
-  <h1>City: {{.Name}}</h1>
+  <div class="page-header">
+    <h1>{{.Name}}</h1>
+  </div>
+  <ul class="breadcrumb">
+    <li><a href="/country/list">Countries</a> <span class="divider">&raquo;</span></li>
+    <li><a href="/country/view/{{$.Region.CountryCode}}">{{$.Region.CountryName}}</a> <span class="divider">&raquo;</span></li>
+    <li><a href="/region/view/{{$.Region.Id}}">{{$.Region.Name}}</a> <span class="divider">&raquo;</span></li>
+    <li class="active">{{.Name}}</li>
+  </ul>
   <table class="table table-striped" style="width: 300px;">
     <tbody>
       <tr><td>Id</td><td>{{.Id}}</td></tr>
       <tr><td>Name</td><td>{{.Name}}</td></tr>
-      <tr><td>Region</td><td>{{.RegionAbbr}}</td></tr>
-      <tr><td>Country</td><td><a href="/country/view/{{.CountryAbbr}}">{{.CountryAbbr}}</a></td></tr>
+      <tr><td>Region</td><td><a href="/region/view/{{$.Region.Id}}">{{$.Region.Name}}</a></td></tr>
+      <tr><td>Country</td><td><a href="/country/view/{{$.Region.CountryCode}}">{{$.Region.CountryName}}</a>></td></tr>
       <tr><td>Actions</td><td>
         <a href="/city/edit/{{.Id}}" class="btn btn-primary"><i class="icon-pencil icon-white"></i> Edit</a>
         <a href="/city/delete/{{.Id}}" class="btn btn-danger"><i class="icon-remove icon-white"></i> Delete</a>
@@ -34,5 +37,4 @@
     </tbody>
   </table>
   <p><a href="/country/list" class="btn btn-primary">&laquo; Country list</a></p>
-</body>
-</html>
+{{end}}
