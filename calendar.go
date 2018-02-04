@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"log"
 	"time"
 )
 
@@ -26,7 +25,7 @@ func (p *CalendarPerson) BirthDateFormatted() string {
 }
 
 func LoadPeopleCalendar(db *sql.DB) (*PeopleCalendar, error) {
-	log.Printf("Loading people calendar")
+	defer trace(traceName("LoadPeopleCalendar"))
 	rows, err := db.Query(
 		"SELECT id, first_name, middle_name, last_name, nick_name, birth_date" +
 			" FROM people" +
