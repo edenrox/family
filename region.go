@@ -63,7 +63,7 @@ func LoadRegionList(db *sql.DB) ([]RegionLite, error) {
 
 func InsertRegion(db *sql.DB, name string, code string, countryCode string) (*RegionLite, error) {
 	log.Printf("Insert region (name: %s, code: %s, countryCode: %s)", name, code, countryCode)
-	res, err := db.Exec("INSERT INTO regions (name, code, country_code) VALUES(?, ?)", name, code, countryCode)
+	res, err := db.Exec("INSERT INTO regions (name, code, country_code) VALUES(?, ?, ?)", name, code, countryCode)
 	if err != nil {
 		return nil, err
 	}
