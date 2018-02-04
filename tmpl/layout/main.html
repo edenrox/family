@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{template "title" .}}</title>
+  <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.min.css" />
+</head>
+<body>
+  <div class="navbar navbar-inverse navbar-fixed-top"><div class="navbar-inner"><div class="container">
+    <a class="brand">Family</a>
+    <ul class="nav">
+      <li><a href="/country/list"><i class="icon-white icon-globe"></i> Countries</a></li>
+      <li><a href="/person/list"><i class="icon-white icon-user"></i> People</a></li>
+      <li><a href="/person/calendar"><i class="icon-white icon-calendar"></i> Calendar</a></li>
+    </ul>
+  </div></div></div>
+  <div class="container" style="margin-top:41px">
+  {{template "content" .}}
+  </div>
+</body>
+</html>
