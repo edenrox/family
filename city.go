@@ -9,6 +9,7 @@ import (
 type CityLite struct {
 	Id          int
 	Name        string
+	RegionId    int
 	RegionAbbr  string
 	CountryAbbr string
 }
@@ -31,7 +32,7 @@ func readCityListFromRows(rows *sql.Rows) ([]CityLite, error) {
 
 func readCityFromRows(rows *sql.Rows) (*CityLite, error) {
 	city := CityLite{}
-	err := rows.Scan(&city.Id, &city.Name, &city.RegionAbbr, &city.CountryAbbr)
+	err := rows.Scan(&city.Id, &city.Name, &city.RegionId, &city.RegionAbbr, &city.CountryAbbr)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +42,7 @@ func readCityFromRows(rows *sql.Rows) (*CityLite, error) {
 func LoadCityById(db *sql.DB, id int) (*CityLite, error) {
 	defer trace(traceName(fmt.Sprintf("LoadCityById(%d)", id)))
 	rows, err := db.Query(
-		"SELECT city_id, city_name, region_code, country_code"+
+		"SELECT city_id, city_name, region_id, region_code, country_code"+
 			" FROM city_view "+
 			" WHERE city_id=?", id)
 	if err != nil {
@@ -62,7 +63,7 @@ func LoadCityById(db *sql.DB, id int) (*CityLite, error) {
 func LoadCitiesByRegionId(db *sql.DB, regionId int) ([]CityLite, error) {
 	defer trace(traceName(fmt.Sprintf("LoadCitiesByRegionId(%d)", regionId)))
 	rows, err := db.Query(
-		"SELECT city_id, city_name, region_code, country_code"+
+		"SELECT city_id, city_name, region_id, region_code, country_code"+
 			" FROM city_view"+
 			" WHERE region_id=?"+
 			" ORDER BY city_name", regionId)
@@ -77,7 +78,7 @@ func LoadCitiesByRegionId(db *sql.DB, regionId int) ([]CityLite, error) {
 func LoadCitiesByCountryCode(db *sql.DB, countryCode string) ([]CityLite, error) {
 	defer trace(traceName(fmt.Sprintf("LoadCitiesByCountryCode(%s)", countryCode)))
 	rows, err := db.Query(
-		"SELECT city_id, city_name, region_code, country_code"+
+		"SELECT city_id, city_name, region_id, region_code, country_code"+
 			" FROM city_view"+
 			" WHERE country_code=?"+
 			" ORDER BY region_code, city_name", countryCode)
@@ -93,7 +94,7 @@ func LoadCitiesByPrefix(db *sql.DB, prefix string) ([]CityLite, error) {
 	defer trace(traceName(fmt.Sprintf("LoadCitiesByPrefix(%s)", prefix)))
 	prefix = prefix + "%"
 	rows, err := db.Query(
-		"SELECT city_id, city_name, region_code, country_code"+
+		"SELECT city_id, city_name, region_id, region_code, country_code"+
 			" FROM city_view"+
 			" WHERE city_name LIKE ?", prefix)
 	if err != nil {
