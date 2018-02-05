@@ -382,7 +382,7 @@ func cityAdd(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, fmt.Sprintf("/region/view/%d", regionId), 302)
 	}
 
-	err := template.Must(template.ParseFiles("tmpl/city/add.html")).Execute(w, nil)
+	err := template.Must(template.ParseFiles("tmpl/layout/main.html", "tmpl/city/add.html")).Execute(w, nil)
 	if err != nil {
 		panic(err)
 	}
