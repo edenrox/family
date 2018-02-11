@@ -61,6 +61,12 @@ func LoadRegionList(db *sql.DB) ([]RegionLite, error) {
 	return readRegionListFromRows(rows)
 }
 
+func DeleteRegion(db *sql.DB, regionId int) error {
+	log.Printf("Delete region (regionId: %d)", regionId)
+	_, err := db.Exec("DELETE FROM regions WHERE region_id=?", regionId)
+	return err
+}
+
 func InsertRegion(db *sql.DB, name string, code string, countryCode string) (*RegionLite, error) {
 	log.Printf("Insert region (name: %s, code: %s, countryCode: %s)", name, code, countryCode)
 	res, err := db.Exec("INSERT INTO regions (name, code, country_code) VALUES(?, ?, ?)", name, code, countryCode)
