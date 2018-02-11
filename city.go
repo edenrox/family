@@ -96,7 +96,8 @@ func LoadCitiesByPrefix(db *sql.DB, prefix string) ([]CityLite, error) {
 	rows, err := db.Query(
 		"SELECT city_id, city_name, region_id, region_code, country_code"+
 			" FROM city_view"+
-			" WHERE city_name LIKE ?", prefix)
+			" WHERE city_name LIKE ?"+
+			" ORDER BY city_name, region_code, country_code", prefix)
 	if err != nil {
 		return nil, err
 	}
