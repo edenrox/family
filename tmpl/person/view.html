@@ -21,8 +21,8 @@
       <tr><td colspan="2"><strong>Birth</strong></td></tr>
       <tr><td>Gender</td><td>{{.Gender}}</td></tr>
       {{if .HasBirthDate}}
-      <tr><td>Date</td><td>{{.BirthDateFormatted}}</td></tr>
-      <tr><td>Age</td><td>{{.Age}}</td></tr>
+      <tr><td>Date</td><td>{{.BirthDateFormatted}} {{if .IsBirthYearGuess}}<span class="label label-important">Estimate</span>{{end}}</td></tr>
+      <tr><td>Age</td><td>{{if .IsAlive}}{{.Age}}{{else}}<span class="label">Deceased</span>{{end}}</td></tr>
       {{end}}
       {{if .BirthCity}}
       <tr><td>City</td><td><a href="/city/view/{{.BirthCity.Id}}">{{.BirthCity.Format}}</a></td></tr>
