@@ -13,22 +13,23 @@ type PersonLite struct {
 }
 
 type Person struct {
-	Id         int
-	FirstName  string
-	MiddleName string
-	LastName   string
-	NickName   string
-	fullName   string
-	Gender     string
-	IsAlive    bool
-	BirthDate  time.Time
-	BirthCity  *CityLite
-	HomeCity   *CityLite
-	Mother     *PersonLite
-	Father     *PersonLite
-	Children   []PersonLite
-	Spouses    []SpouseLite
-	Siblings   []PersonLite
+	Id               int
+	FirstName        string
+	MiddleName       string
+	LastName         string
+	NickName         string
+	fullName         string
+	Gender           string
+	IsAlive          bool
+	BirthDate        time.Time
+	BirthCity        *CityLite
+	IsBirthYearGuess bool
+	HomeCity         *CityLite
+	Mother           *PersonLite
+	Father           *PersonLite
+	Children         []PersonLite
+	Spouses          []SpouseLite
+	Siblings         []PersonLite
 }
 
 func BuildFullName(firstName string, middleName string, lastName string, nickName string) string {
@@ -95,7 +96,12 @@ func LoadPersonLiteById(db *sql.DB, id int) (*PersonLite, error) {
 
 func LoadPersonById(db *sql.DB, id int) (*Person, error) {
 	defer trace(traceName(fmt.Sprintf("LoadPersonById(%d)", id)))
-	rows, err := db.Query("SELECT id, first_name, middle_name, last_name, nick_name, mother_id, father_id, birth_date, is_alive, home_city_id, birth_city_id, gender FROM people WHERE id = ?", id)
+	rows, err := db.Query(
+		"SELECT id, first_name, middle_name, last_name,"+
+			" nick_name, mother_id, father_id, birth_date,"+
+			" is_birth_year_guess, is_alive, home_city_id, birth_city_id,"+
+			" gender"+
+			" FROM people WHERE id=?", id)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +114,11 @@ func LoadPersonById(db *sql.DB, id int) (*Person, error) {
 	var motherId, fatherId, homeCityId, birthCityId sql.NullInt64
 	var birthDateString sql.NullString
 	var gender string
-	err = rows.Scan(&item.Id, &item.FirstName, &item.MiddleName, &item.LastName, &item.NickName, &motherId, &fatherId, &birthDateString, &item.IsAlive, &homeCityId, &birthCityId, &gender)
+	err = rows.Scan(
+		&item.Id, &item.FirstName, &item.MiddleName, &item.LastName,
+		&item.NickName, &motherId, &fatherId, &birthDateString,
+		&item.IsBirthYearGuess, &item.IsAlive, &homeCityId, &birthCityId,
+		&gender)
 	rows.Close()
 	if err != nil {
 		return nil, err
@@ -203,6 +213,22 @@ func LoadSiblingsPersonLite(db *sql.DB, personId int) ([]PersonLite, error) {
 	rows, err := db.Query("SELECT id, first_name, middle_name, last_name, nick_name, gender"+
 		" FROM people"+
 		" WHERE father_id=? AND mother_id=? AND id!=?", fatherId, motherId, personId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return readPersonLiteListFromRows(rows)
+}
+
+func LoadPersonLiteListByNamePrefix(db *sql.DB, prefix string, offset int) ([]PersonLite, error) {
+	defer trace(traceName(fmt.Sprintf("LoadPersonLiteListByNamePrefix(%s)", prefix)))
+	rows, err := db.Query(
+		"SELECT id, first_name, middle_name, last_name, nick_name, gender"+
+			" FROM people"+
+			" WHERE first_name LIKE CONCAT(?, '%') OR last_name LIKE CONCAT(?, '%')"+
+			" ORDER BY last_name, first_name"+
+			" LIMIT ?, 10", prefix, prefix, offset)
 	if err != nil {
 		return nil, err
 	}
