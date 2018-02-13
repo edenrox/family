@@ -1,26 +1,99 @@
 {{define "title"}}People List{{end}}
 {{define "content"}}
   <div class="page-header">
+    <div style="float: right;"><a href="/person/add" class="btn btn-primary"><i class="icon-plus icon-white"></i> Add a Person</a></div>
     <h1>People List</h1>
   </div>
   <ul class="breadcrumb">
     <li class="active">People</li>
   </ul>
-  <table class="table table-striped" style="width: 300px">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Gender</th>
-      </tr>
-    </thead>
-    <tbody>
-      {{range .}}
-      <tr>
-        <td><a href="/person/view/{{.Id}}">{{.Name}}</a></td>
-        <td>{{.Gender}}</td>
-      </tr>
-      {{end}}
-    </tbody>
-  </table>
-  <p><a href="/person/add" class="btn btn-primary"><i class="icon-plus icon-white"></i> Add a Person</a></p>
+  <div id="showing"></div>
+  <div style="height: 490px;">
+    <table class="table table-striped" style="width: 900px">
+      <thead>
+        <tr>
+          <th colspan="4">
+            <form id="search_form" autocomplete="off" style="margin: 0;">
+              <label for="prefix" style="display: inline">Search: </label>
+              <input type="text" name="prefix" id="prefix" />
+            </form>
+          </th>
+        </tr>
+        <tr>
+          <th style="width: 100px">Id</th>
+          <th style="width: 700px">Name</th>
+          <th style="width: 100px">Gender</th>
+        </tr>
+      </thead>
+      <tbody id="search_results">
+      </tbody>
+    </table>
+  </div>
+  <a href="#" class="btn btn-primary" id="previous_button"><i class="icon-chevron-left icon-white"></i> Previous</i></a>
+  <a href="#" class="btn btn-primary" id="next_button">Next<i class="icon-chevron-right icon-white"></i></a>
+  <script type="text/javascript">
+  // Load the initial list of people
+  var offset = 0;
+
+  $(function() {
+    $('#prefix').on('input paste', function() {
+      searchChange();
+      return true;
+    });
+    $('#search_form').submit(function() {
+      searchChange();
+      return false;
+    });
+    $('#next_button').click(function() {
+      offset += 10;
+      executeSearch();
+      return false;
+    });
+    $('#previous_button').click(function() {
+      if (offset == 0) {
+        return false;
+      }
+      offset -= 10;
+      if (offset < 0) {
+        offset = 0;
+      }
+      executeSearch();
+      return false;
+    });
+
+    // Do an initial search on page load
+    executeSearch()
+  });
+
+  function searchChange() {
+    offset = 0;
+    executeSearch();
+  }
+
+  function executeSearch() {
+    var prefix = $('#prefix').val();
+    var results = $('#search_results');
+    results.empty();
+    $.get({
+      url: '/person/json/search?prefix=' + encodeURIComponent(prefix) + '&offset=' + encodeURIComponent(offset),
+      dataType: 'json',
+      success: function(data) {
+        $.each(data, function(index, person) {
+          results.append(
+            '<tr><td>' + person.Id + '</td>'+
+            '<td><a href="/person/view/' + person.Id + '">' + person.Name + '</a></td>'+
+            '<td>' + person.Gender + '</td>'+
+            '</tr>');
+        });
+        if (data == null) {
+          $('#showing').html('No results');
+        } else {
+          $('#showing').html('Showing <b>' + (offset+1) + '-' + (offset + data.length) + '</b>');
+        }
+      },
+    });
+  }
+
+
+  </script>
 {{end}}
