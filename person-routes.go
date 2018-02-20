@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 func personView(w http.ResponseWriter, r *http.Request) {
@@ -62,9 +63,44 @@ func personJsonSearch(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(people)
 }
 
+func personGraph(w http.ResponseWriter, r *http.Request) {
+	personList, err := LoadPersonLiteList(db)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error loading people: %v", err), 500)
+		return
+	}
+	w.Header().Set("Content-Type", "text/plain")
+	fmt.Fprintln(w, "digraph PersonGraph {")
+
+	parentMap := make(map[string]bool)
+	for _, person := range personList {
+		// Add the person to the graph
+		nameNoQuotes := strings.Replace(person.Name, "\"", "", -1)
+		fmt.Fprintf(w, "    P_%d [label=\"%s\"]\n", person.Id, nameNoQuotes)
+
+		// Add a relationship for the parents if one exists
+		if (person.MotherId > 0) || (person.FatherId > 0) {
+			parentKey := fmt.Sprintf("R_%d_%d", person.MotherId, person.FatherId)
+			if parentMap[parentKey] == false {
+				parentMap[parentKey] = true
+				fmt.Fprintf(w, "    %s [label=\"\" shape=point]\n", parentKey)
+				if person.MotherId > 0 {
+					fmt.Fprintf(w, "    P_%d -> %s\n", person.MotherId, parentKey)
+				}
+				if person.FatherId > 0 {
+					fmt.Fprintf(w, "    P_%d -> %s\n", person.FatherId, parentKey)
+				}
+			}
+			fmt.Fprintf(w, "    %s -> P_%d\n", parentKey, person.Id)
+		}
+	}
+	fmt.Fprintln(w, "}")
+}
+
 func addPersonRoutes() {
 	http.HandleFunc("/person/json/search", personJsonSearch)
 	http.HandleFunc("/person/list", personList)
 	http.HandleFunc("/person/calendar", personCalendar)
 	http.HandleFunc("/person/view/", personView)
+	http.HandleFunc("/person/graph/", personGraph)
 }
