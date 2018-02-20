@@ -7,9 +7,11 @@ import (
 )
 
 type PersonLite struct {
-	Id     int
-	Name   string
-	Gender string
+	Id       int
+	Name     string
+	Gender   string
+	MotherId int
+	FatherId int
 }
 
 type Person struct {
@@ -76,7 +78,7 @@ func (p *Person) Age() int {
 
 func LoadPersonLiteById(db *sql.DB, id int) (*PersonLite, error) {
 	defer trace(traceName(fmt.Sprintf("LoadPersonLiteById(%d)", id)))
-	rows, err := db.Query("SELECT id, first_name, middle_name, last_name, nick_name, gender"+
+	rows, err := db.Query("SELECT id, first_name, middle_name, last_name, nick_name, gender, mother_id, father_id"+
 		" FROM people"+
 		" WHERE id=?", id)
 	if err != nil {
@@ -166,7 +168,7 @@ func LoadPersonById(db *sql.DB, id int) (*Person, error) {
 
 func LoadPersonLiteList(db *sql.DB) ([]PersonLite, error) {
 	defer trace(traceName("LoadPersonLiteList"))
-	rows, err := db.Query("SELECT id, first_name, middle_name, last_name, nick_name, gender" +
+	rows, err := db.Query("SELECT id, first_name, middle_name, last_name, nick_name, gender, mother_id, father_id" +
 		" FROM people" +
 		" ORDER BY last_name, first_name, middle_name")
 	if err != nil {
@@ -179,7 +181,7 @@ func LoadPersonLiteList(db *sql.DB) ([]PersonLite, error) {
 
 func LoadPersonLiteListByHomeCityId(db *sql.DB, cityId int) ([]PersonLite, error) {
 	defer trace(traceName("LoadPersonLiteList"))
-	rows, err := db.Query("SELECT id, first_name, middle_name, last_name, nick_name, gender"+
+	rows, err := db.Query("SELECT id, first_name, middle_name, last_name, nick_name, gender, mother_id, father_id"+
 		" FROM people"+
 		" WHERE home_city_id=?"+
 		" ORDER BY last_name, first_name, middle_name", cityId)
@@ -193,7 +195,7 @@ func LoadPersonLiteListByHomeCityId(db *sql.DB, cityId int) ([]PersonLite, error
 
 func LoadChildrenPersonLite(db *sql.DB, personId int) ([]PersonLite, error) {
 	defer trace(traceName(fmt.Sprintf("LoadChildrenPersonLite(%d)", personId)))
-	rows, err := db.Query("SELECT id, first_name, middle_name, last_name, nick_name, gender"+
+	rows, err := db.Query("SELECT id, first_name, middle_name, last_name, nick_name, gender, mother_id, father_id"+
 		" FROM people "+
 		" WHERE father_id = ? OR mother_id = ?", personId, personId)
 	if err != nil {
@@ -210,7 +212,7 @@ func LoadSiblingsPersonLite(db *sql.DB, personId int) ([]PersonLite, error) {
 	var fatherId, motherId int
 	row.Scan(&fatherId, &motherId)
 
-	rows, err := db.Query("SELECT id, first_name, middle_name, last_name, nick_name, gender"+
+	rows, err := db.Query("SELECT id, first_name, middle_name, last_name, nick_name, gender, mother_id, father_id"+
 		" FROM people"+
 		" WHERE father_id=? AND mother_id=? AND id!=?", fatherId, motherId, personId)
 	if err != nil {
@@ -224,7 +226,7 @@ func LoadSiblingsPersonLite(db *sql.DB, personId int) ([]PersonLite, error) {
 func LoadPersonLiteListByNamePrefix(db *sql.DB, prefix string, offset int) ([]PersonLite, error) {
 	defer trace(traceName(fmt.Sprintf("LoadPersonLiteListByNamePrefix(%s)", prefix)))
 	rows, err := db.Query(
-		"SELECT id, first_name, middle_name, last_name, nick_name, gender"+
+		"SELECT id, first_name, middle_name, last_name, nick_name, gender, mother_id, father_id"+
 			" FROM people"+
 			" WHERE first_name LIKE CONCAT(?, '%') OR last_name LIKE CONCAT(?, '%')"+
 			" ORDER BY last_name, first_name"+
@@ -250,13 +252,19 @@ func readPersonLiteListFromRows(rows *sql.Rows) ([]PersonLite, error) {
 }
 
 func readPersonLiteFromRows(rows *sql.Rows) (*PersonLite, error) {
-	var id int
+	var id, motherId, fatherId int
 	var firstName, middleName, lastName, nickName, gender string
-	rows.Scan(&id, &firstName, &middleName, &lastName, &nickName, &gender)
+	rows.Scan(&id, &firstName, &middleName, &lastName, &nickName, &gender, &motherId, &fatherId)
 	if gender == "M" {
 		gender = "Male"
 	} else {
 		gender = "Female"
 	}
-	return &PersonLite{Id: id, Name: BuildFullName(firstName, middleName, lastName, nickName), Gender: gender}, nil
+	return &PersonLite{
+			Id:       id,
+			Name:     BuildFullName(firstName, middleName, lastName, nickName),
+			Gender:   gender,
+			MotherId: motherId,
+			FatherId: fatherId},
+		nil
 }
