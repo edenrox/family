@@ -20,8 +20,8 @@
           </th>
         </tr>
         <tr>
-          <th style="width: 100px">Id</th>
-          <th style="width: 700px">Name</th>
+          <th style="width: 50px">Id</th>
+          <th style="width: 750px">Name</th>
           <th style="width: 100px">Gender</th>
         </tr>
       </thead>
@@ -81,7 +81,7 @@
         $.each(data, function(index, person) {
           results.append(
             '<tr><td>' + person.Id + '</td>'+
-            '<td><a href="/person/view/' + person.Id + '">' + person.Name + '</a></td>'+
+            '<td><b><a href="/person/view/' + person.Id + '">' + person.Name + '</a></b></td>'+
             '<td>' + person.Gender + '</td>'+
             '</tr>');
         });
