@@ -56,6 +56,46 @@ func cityView(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func cityEdit(w http.ResponseWriter, r *http.Request) {
+	cityId, err := getIntPathParam(r, "cityId", 3 /* index */)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error parsing cityId: %v", err), 400)
+		return
+	}
+
+	if r.Method == "POST" {
+		cityName := r.FormValue("name")
+		if cityName == "" {
+			http.Error(w, "Empty city name", 400)
+			return
+		}
+		regionId, err := strconv.Atoi(r.FormValue("region_id"))
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Invalid region_id: %s", r.FormValue("region_id")), 400)
+			return
+		}
+		lat, _ := strconv.ParseFloat(r.FormValue("lat"), 32)
+		lng, _ := strconv.ParseFloat(r.FormValue("lng"), 32)
+		err = UpdateCity(db, cityId, cityName, regionId, float32(lat), float32(lng))
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Error updating city: %v", err), 500)
+			return
+		}
+		http.Redirect(w, r, fmt.Sprintf("/region/view/%d", regionId), 302)
+	}
+
+	city, err := LoadCityById(db, cityId)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error loading city by id: %v", err), 400)
+		return
+	}
+
+	err = template.Must(template.ParseFiles("tmpl/layout/main.html", "tmpl/city/edit.html")).Execute(w, city)
+	if err != nil {
+		panic(err)
+	}
+}
+
 func cityAdd(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		cityName := r.FormValue("name")
@@ -114,6 +154,7 @@ func cityDelete(w http.ResponseWriter, r *http.Request) {
 func addCityRoutes() {
 	http.HandleFunc("/city/list/", cityList)
 	http.HandleFunc("/city/view/", cityView)
+	http.HandleFunc("/city/edit/", cityEdit)
 	http.HandleFunc("/city/json/search", cityJsonSearch)
 	http.HandleFunc("/city/add", cityAdd)
 	http.HandleFunc("/city/delete/", cityDelete)

@@ -1,0 +1,65 @@
+{{define "title"}}City : Edit {{.Name}}{{end}}
+{{define "content"}}
+  <div class="page-header">
+    <h1>Edit {{.Name}}</h1>
+  </div>
+  <ul class="breadcrumb">
+    <li><a href="/city/list">Cities</a> <span class="divider">&raquo;</span></li>
+    <li><a href="/city/view/{{.Id}}">{{.Name}}</a> <span class="divider">&raquo;</span></li>
+    <li class="active">Edit</li>
+  </ul>
+  <form action="/city/edit/{{.Id}}" method="post" autocomplete="off">
+    <input type="hidden" name="region_id" id="region_id" value="{{.RegionId}}" />
+    <table class="table table-striped"  style="width: 300px;">
+      <tbody>
+        <tr>
+          <td><label for="city_name">Name</label></td>
+          <td><input type="text" name="name" id="city_name" value="{{.Name}}" /></td></tr>
+        <tr>
+          <td><label for="region_name">Region</label></td>
+          <td>
+            <div style="display: block; position:relative;">
+              <input type="text" name="region_name" autocomplete="off" id="region_name" />
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><label>Location</label></td>
+          <td class="form-inline">
+            <label for="lat">Lat: </label>
+            <input type="text" name="lat" autocomplete="off" id="lat" class="input-mini" value="{{.Latitude}}" />
+            <label for="lng">Lng: </label>
+            <input type="text" name="lng" autocomplete="off" id="lng" class="input-mini" value="{{.Longitude}}" />
+          </td>
+        </tr>
+        <tr><td></td><td>
+          <input type="submit" value="Edit" class="btn btn-primary" />
+          <a href="/city/list" class="btn btn-danger">Cancel</a>
+        </td></tr>
+      </tbody>
+    </table>
+  </form>
+  <script type="text/javascript">
+  // Load the Region list
+  var regionLookup = [];
+  $.get({
+    url: '/region/json/list',
+    dataType: 'json',
+    success: function(data) {
+      var regions = []
+      $.each(data, function(index, region) {
+        var regionName = region.Name + ", " + region.CountryCode;
+        regionLookup[regionName] = region.Id;
+        regions.push(regionName);
+      })
+      $('#region_name').typeahead({
+        source: regions,
+        updater: function(item) {
+          $('#region_id').val(regionLookup[item]);
+          return item;
+        }
+      });
+    },
+  })
+  </script>
+{{end}}

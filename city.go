@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"log"
 )
 
 type CityLite struct {
@@ -110,7 +109,7 @@ func LoadCitiesByPrefix(db *sql.DB, prefix string, offset int) ([]CityLite, erro
 }
 
 func DeleteCity(db *sql.DB, id int) error {
-	log.Printf("Delete city id: %d", id)
+	trace(traceName(fmt.Sprintf("DeleteCity(%d)", id)))
 	res, err := db.Exec("DELETE FROM cities WHERE id=?", id)
 	if err != nil {
 		return err
@@ -123,7 +122,7 @@ func DeleteCity(db *sql.DB, id int) error {
 }
 
 func InsertCity(db *sql.DB, name string, regionId int, lat float32, lng float32) (*CityLite, error) {
-	log.Printf("Insert city (name: %s, regionId: %d)", name, regionId)
+	trace(traceName(fmt.Sprintf("InsertCity(name:%s, regionId: %d)", name, regionId)))
 	res, err := db.Exec("INSERT INTO cities (name, region_id, lat, lng) VALUES(?, ?, ?, ?)", name, regionId, lat, lng)
 	if err != nil {
 		return nil, err
@@ -133,4 +132,14 @@ func InsertCity(db *sql.DB, name string, regionId int, lat float32, lng float32)
 		return nil, err
 	}
 	return LoadCityById(db, int(cityId))
+}
+
+func UpdateCity(db *sql.DB, cityId int, name string, regionId int, lat float32, lng float32) error {
+	trace(traceName(fmt.Sprintf("UpdateCity(%d)", cityId)))
+	_, err := db.Exec(
+		"UPDATE cities"+
+			" SET name=?, region_id=?, lat=?, lng=?"+
+			" WHERE id=?",
+		name, regionId, lat, lng, cityId)
+	return err
 }
