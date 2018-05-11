@@ -25,8 +25,9 @@ func spouseAdd(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		person2Id, err := strconv.Atoi(r.FormValue("person2_id"))
 		status, err := strconv.Atoi(r.FormValue("status"))
+		marriedDate := r.FormValue("married_date")
 
-		err = InsertSpouse(db, person1Id, person2Id, status)
+		err = InsertSpouse(db, person1Id, person2Id, status, marriedDate)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Error adding spouse: %v", err), 500)
 			return

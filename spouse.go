@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"log"
 )
 
 type SpouseLite struct {
@@ -62,7 +61,7 @@ func DeleteSpouse(db *sql.DB, person1Id int, person2Id int) error {
 		person1Id = person2Id
 		person2Id = tmp
 	}
-	log.Printf("Delete Spouse person1Id: %d, person2Id: %d", person1Id, person2Id)
+	trace(traceName(fmt.Sprintf("DeleteSpouse(%d, %d)", person1Id, person2Id)))
 	res, err := db.Exec("DELETE FROM spouses WHERE person1_id=? AND person2_id=?", person1Id, person2Id)
 	if err != nil {
 		return err
@@ -77,14 +76,22 @@ func DeleteSpouse(db *sql.DB, person1Id int, person2Id int) error {
 	return nil
 }
 
-func InsertSpouse(db *sql.DB, person1Id int, person2Id int, status int) error {
+func InsertSpouse(db *sql.DB, person1Id int, person2Id int, status int, marriedDate string) error {
 	if person2Id < person1Id {
 		tmp := person1Id
 		person1Id = person2Id
 		person2Id = tmp
 	}
-	log.Printf("Insert Spouse person1Id: %d, person2Id: %d, status: %d", person1Id, person2Id, status)
-	_, err := db.Exec("INSERT INTO spouses (person1_id, person2_id, status) VALUES(?, ?, ?)", person1Id, person2Id, status)
+	trace(traceName(fmt.Sprintf("InsertSpouse(%d, %d, %d, %s)", person1Id, person2Id, status, marriedDate)))
+	nullableMariedDate := sql.NullString{
+		String: marriedDate,
+		Valid:  marriedDate != "",
+	}
+	_, err := db.Exec(
+		"INSERT INTO spouses"+
+			" (person1_id, person2_id, status, marriedDate)"+
+			" VALUES(?, ?, ?, ?)",
+		person1Id, person2Id, status, nullableMariedDate)
 	if err != nil {
 		return err
 	}
