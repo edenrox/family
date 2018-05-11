@@ -96,6 +96,14 @@ func LoadPersonLiteById(db *sql.DB, id int) (*PersonLite, error) {
 	return item, nil
 }
 
+func GetGenderName(gender string) string {
+	if gender == "M" {
+		return "Male"
+	} else {
+		return "Female"
+	}
+}
+
 func LoadPersonById(db *sql.DB, id int) (*Person, error) {
 	defer trace(traceName(fmt.Sprintf("LoadPersonById(%d)", id)))
 	rows, err := db.Query(
@@ -134,11 +142,7 @@ func LoadPersonById(db *sql.DB, id int) (*Person, error) {
 	if birthDateString.Valid {
 		item.BirthDate, err = time.Parse("2006-01-02", birthDateString.String)
 	}
-	if gender == "M" {
-		item.Gender = "Male"
-	} else {
-		item.Gender = "Female"
-	}
+	item.Gender = GetGenderName(gender)
 	if birthCityId.Valid {
 		item.BirthCity, err = LoadCityById(db, int(birthCityId.Int64))
 		if err != nil {
@@ -256,15 +260,10 @@ func readPersonLiteFromRows(rows *sql.Rows) (*PersonLite, error) {
 	var motherId, fatherId sql.NullInt64
 	var firstName, middleName, lastName, nickName, gender string
 	rows.Scan(&id, &firstName, &middleName, &lastName, &nickName, &gender, &motherId, &fatherId)
-	if gender == "M" {
-		gender = "Male"
-	} else {
-		gender = "Female"
-	}
 	item := PersonLite{
 		Id:     id,
 		Name:   BuildFullName(firstName, middleName, lastName, nickName),
-		Gender: gender,
+		Gender: GetGenderName(gender),
 	}
 	if motherId.Valid {
 		item.MotherId = int(motherId.Int64)
