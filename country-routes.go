@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -53,13 +54,19 @@ func countryView(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Error loading regions: %v", err), 500)
 		return
 	}
+	var capitalCity *CityLite
+	if item.CapitalCityId > 0 {
+		capitalCity, err = LoadCityById(db, item.CapitalCityId)
+	}
 
 	data := struct {
-		Country *Country
-		Regions []RegionLite
+		Country     *Country
+		Regions     []RegionLite
+		CapitalCity *CityLite
 	}{
 		item,
 		regions,
+		capitalCity,
 	}
 
 	// Output the result
@@ -72,21 +79,20 @@ func countryView(w http.ResponseWriter, r *http.Request) {
 // Add a new country
 func countryAdd(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
-		item := Country{
-			Code: r.FormValue("code"),
-			Name: r.FormValue("name"),
-		}
-		if item.Code == "" || item.Name == "" {
+		countryCode := r.FormValue("code")
+		countryName := r.FormValue("name")
+		capitalCityId, err := strconv.Atoi(r.FormValue("capital_city_id"))
+		if countryCode == "" || countryName == "" {
 			http.Error(w, "Bad request, empty code or name", 400)
 			return
 		}
 
-		_, err := db.Exec("INSERT INTO countries (code, name) VALUES(?, ?)", item.Code, item.Name)
+		err = InsertCountry(db, countryName, countryCode, capitalCityId)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Error inserting country: %v", err), 500)
 			return
 		}
-		http.Redirect(w, r, "/country/list", 302)
+		http.Redirect(w, r, fmt.Sprintf("/country/view/%s", countryCode), 302)
 		return
 	}
 
@@ -106,21 +112,21 @@ func countryEdit(w http.ResponseWriter, r *http.Request) {
 	var originalCode = parts[3]
 
 	if r.Method == "POST" {
-		item := Country{
-			Code: r.FormValue("code"),
-			Name: r.FormValue("name"),
-		}
-		if item.Code == "" || item.Name == "" {
+		countryName := r.FormValue("name")
+		countryCode := r.FormValue("code")
+		capitalCityId, _ := strconv.Atoi(r.FormValue("capital_city_id"))
+
+		if countryCode == "" || countryName == "" {
 			http.Error(w, "Bad request, empty code or name", 400)
 			return
 		}
 
-		_, err := db.Exec("UPDATE countries SET code=?, name=? WHERE code=?", item.Code, item.Name, originalCode)
+		err := UpdateCountry(db, originalCode, countryName, countryCode, capitalCityId)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Error updating country: %v", err), 500)
 			return
 		}
-		http.Redirect(w, r, fmt.Sprintf("/country/view/%s", item.Code), 302)
+		http.Redirect(w, r, fmt.Sprintf("/country/view/%s", countryCode), 302)
 		return
 	}
 

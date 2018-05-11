@@ -12,6 +12,9 @@
     <tbody>
       <tr><td>Code</td><td>{{.Code}}</td></tr>
       <tr><td>Name</td><td>{{.Name}}</td></tr>
+      {{if $.CapitalCity}}
+      <tr><td>Capital City</td><td><a href="/city/view/{{$.CapitalCity.Id}}">{{$.CapitalCity.Name}}, {{$.CapitalCity.RegionAbbr}}</a></td></tr>
+      {{end}}
       <tr><td>Actions</td><td>
         <a href="/country/edit/{{.Code}}" class="btn btn-primary"><i class="icon-pencil icon-white"></i> Edit</a>
         <a href="/country/delete/{{.Code}}" class="btn btn-danger"><i class="icon-remove icon-white"></i> Delete</a>

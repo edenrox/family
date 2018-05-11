@@ -9,10 +9,11 @@
     <li class="active">Edit</li>
   </ul>
   <form action="/country/edit/{{.Code}}" method="post">
-    <table class="table table-striped" style="width: 300px;">
+    <table class="table table-striped" style="width: 400px;">
       <tbody>
         <tr><td>Code</td><td><input type="text" name="code" value="{{.Code}}" class="input-small" /></td></tr>
         <tr><td>Name</td><td><input type="text" name="name" value="{{.Name}}" /></td></tr>
+        <tr><td>Capital City</td><td><input type="text" name="capital_city_id" value="{{.CapitalCityId}}" /></td></tr>
         <tr><td></td><td>
           <input type="submit" value="Save" class="btn btn-primary" />
           <a href="/country/view/{{.Code}}" class="btn btn-danger">Cancel</a>
