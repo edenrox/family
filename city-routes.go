@@ -9,6 +9,13 @@ import (
 	"strings"
 )
 
+func cityList(w http.ResponseWriter, r *http.Request) {
+	err := template.Must(template.ParseFiles("tmpl/layout/main.html", "tmpl/city/list.html")).Execute(w, "data")
+	if err != nil {
+		panic(err)
+	}
+}
+
 func cityView(w http.ResponseWriter, r *http.Request) {
 	cityId, err := getIntPathParam(r, "cityId", 3 /* index */)
 	if err != nil {
@@ -57,7 +64,9 @@ func cityAdd(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, fmt.Sprintf("Invalid region_id: %s", r.FormValue("region_id")), 400)
 			return
 		}
-		_, err = InsertCity(db, cityName, regionId)
+		lat, err := strconv.ParseFloat(r.FormValue("lat"), 32)
+		lng, err := strconv.ParseFloat(r.FormValue("lng"), 32)
+		_, err = InsertCity(db, cityName, regionId, float32(lat), float32(lng))
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Error creating city: %v", err), 500)
 			return
@@ -73,12 +82,11 @@ func cityAdd(w http.ResponseWriter, r *http.Request) {
 
 func cityJsonSearch(w http.ResponseWriter, r *http.Request) {
 	prefix := strings.Trim(r.FormValue("prefix"), " \t")
-	if len(prefix) == 0 {
-		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, "[]")
-		return
+	offset, err := strconv.Atoi(r.FormValue("offset"))
+	if err != nil {
+		offset = 0
 	}
-	cities, err := LoadCitiesByPrefix(db, prefix)
+	cities, err := LoadCitiesByPrefix(db, prefix, offset)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error loading cities: %v", err), 500)
 		return
@@ -104,6 +112,7 @@ func cityDelete(w http.ResponseWriter, r *http.Request) {
 }
 
 func addCityRoutes() {
+	http.HandleFunc("/city/list/", cityList)
 	http.HandleFunc("/city/view/", cityView)
 	http.HandleFunc("/city/json/search", cityJsonSearch)
 	http.HandleFunc("/city/add", cityAdd)

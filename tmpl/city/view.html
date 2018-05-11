@@ -10,10 +10,18 @@
     <li><a href="/region/view/{{$.Region.Id}}">{{$.Region.Name}}</a> <span class="divider">&raquo;</span></li>
     <li class="active">{{.Name}}</li>
   </ul>
+  {{if .Latitude}}
+  <img style="width: 500px; height: 300px; float: right;" src="https://maps.googleapis.com/maps/api/staticmap?center={{.Latitude}},{{.Longitude}}&amp;zoom=5&amp;size=500x300&amp;maptype=roadmap
+  &amp;markers=color:blue%7C{{.Latitude}},{{.Longitude}}&amp;key=AIzaSyB6r7NRfDGAu2RLJ3W-RyvteT1uirirUxU" />
+  {{end}}
+  <h2>City Details</h2>
   <table class="table table-striped" style="width: 300px;">
     <tbody>
       <tr><td>Id</td><td>{{.Id}}</td></tr>
       <tr><td>Name</td><td>{{.Name}}</td></tr>
+      {{if .Latitude}}
+      <tr><td>Location</td><td>{{.Latitude}}, {{.Longitude}}</td></tr>
+      {{end}}
       <tr><td>Region</td><td><a href="/region/view/{{$.Region.Id}}">{{$.Region.Name}}</a></td></tr>
       <tr><td>Country</td><td><a href="/country/view/{{$.Region.CountryCode}}">{{$.Region.CountryName}}</a></td></tr>
       <tr><td>Actions</td><td>
@@ -23,7 +31,7 @@
     </tbody>
   </table>
   {{end}}
-  <h2>People</h2>
+  <h2 style="clear: left;">People</h2>
   <table class="table table-striped" style="width:300px;">
     <thead>
       <tr><th>Name</th></tr>

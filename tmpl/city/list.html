@@ -1,0 +1,111 @@
+{{define "title"}}City : List{{end}}
+{{define "content"}}
+  <div class="page-header">
+    <div style="float: right;"><a href="/city/add" class="btn btn-primary"><i class="icon-plus icon-white"></i> Add a City</a></div>
+    <h1>City List</h1>
+  </div>
+  <ul class="breadcrumb">
+    <li class="active">Cities</li>
+  </ul>
+  <div id="showing"></div>
+  <div style="height: 490px;">
+    <table class="table table-striped" style="width: 900px">
+      <thead>
+        <tr>
+          <th colspan="4">
+            <form id="search_form" autocomplete="off" style="margin: 0;">
+              <label for="prefix" style="display: inline">Search: </label>
+              <input type="text" name="prefix" id="prefix" />
+            </form>
+          </th>
+        </tr>
+        <tr>
+          <th style="width: 50px">Id</th>
+          <th style="width: 350px">Name</th>
+          <th style="width: 150px">Region</th>
+          <th style="width: 150px">Country</th>
+          <th style="width: 200px">Location</th>
+        </tr>
+      </thead>
+      <tbody id="search_results">
+      </tbody>
+    </table>
+  </div>
+  <a href="#" class="btn btn-primary" id="previous_button"><i class="icon-chevron-left icon-white"></i> Previous</i></a>
+  <a href="#" class="btn btn-primary" id="next_button">Next<i class="icon-chevron-right icon-white"></i></a>
+  <script type="text/javascript">
+  // Load the initial list of people
+  var offset = 0;
+
+  $(function() {
+    $('#prefix').on('input paste', function() {
+      searchChange();
+      return true;
+    });
+    $('#search_form').submit(function() {
+      searchChange();
+      return false;
+    });
+    $('#next_button').click(function() {
+      offset += 10;
+      executeSearch();
+      return false;
+    });
+    $('#previous_button').click(function() {
+      if (offset == 0) {
+        return false;
+      }
+      offset -= 10;
+      if (offset < 0) {
+        offset = 0;
+      }
+      executeSearch();
+      return false;
+    });
+
+    // Do an initial search on page load
+    executeSearch()
+  });
+
+  function searchChange() {
+    offset = 0;
+    executeSearch();
+  }
+
+  function executeSearch() {
+    var prefix = $('#prefix').val();
+    var results = $('#search_results');
+    results.empty();
+    $.get({
+      url: '/city/json/search?prefix=' + encodeURIComponent(prefix) + '&offset=' + encodeURIComponent(offset),
+      dataType: 'json',
+      success: function(data) {
+        $.each(data, function(index, city) {
+          results.append(
+            '<tr><td style="text-align: right;">' + city.Id + '</td>'+
+            '<td><b><a href="/city/view/' + city.Id + '">' + city.Name + '</a></b></td>'+
+            '<td><a href="/region/view/' + city.RegionId + '">' + city.RegionAbbr + '</a></td>'+
+            '<td><a href="/country/view/' + city.CountryAbbr + '">' + city.CountryAbbr + '</a></td>'+
+            '<td>' + formatLocation(city.Latitude, city.Longitude) + '</td>' +
+            '</tr>');
+        });
+        if (data == null) {
+          $('#showing').html('No results');
+        } else {
+          $('#showing').html('Showing <b>' + (offset+1) + '-' + (offset + data.length) + '</b>');
+        }
+      },
+    });
+  }
+
+  function formatLocation(lat, lng) {
+      if (lat == 0.0) {
+          return '';
+      }
+      return Math.abs(lat).toFixed(4) + ' ' + (lat > 0 ? 'N' : 'S') 
+          + ', ' + Math.abs(lng).toFixed(4) + ' ' + (lng > 0 ? 'E' : 'W');
+  }
+
+
+  </script>
+{{end}}
