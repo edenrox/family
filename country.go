@@ -12,6 +12,14 @@ type Country struct {
 	CapitalCityId int
 }
 
+type CountryFull struct {
+	Code        string
+	Name        string
+	CapitalCity *CityLite
+	Gdp         int
+	Population  int
+}
+
 func LoadCountryByCode(db *sql.DB, code string) (*Country, error) {
 	defer trace(traceName(fmt.Sprintf("LoadCountryBycode(%s)", code)))
 	rows, err := db.Query(
@@ -33,6 +41,42 @@ func LoadCountryByCode(db *sql.DB, code string) (*Country, error) {
 		return nil, err
 	}
 	return item, nil
+}
+
+func LoadFullCountryList(db *sql.DB) ([]CountryFull, error) {
+	defer trace(traceName("LoadFullCountryList"))
+	rows, err := db.Query(
+		"SELECT co.code, co.name, co.gdp, co.population, ci.city_id, ci.city_name, ci.region_id, ci.region_code" +
+			" FROM countries co" +
+			"   LEFT JOIN city_view ci ON ci.city_id = co.capital_city_id" +
+			" ORDER BY co.name")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Fetch the rows
+	var countries []CountryFull
+	for rows.Next() {
+		var item CountryFull
+		var cityId, cityRegionId sql.NullInt64
+		var cityName, cityRegionCode sql.NullString
+		err = rows.Scan(&item.Code, &item.Name, &item.Gdp, &item.Population, &cityId, &cityName, &cityRegionId, &cityRegionCode)
+		if err != nil {
+			return nil, err
+		}
+		if cityId.Valid {
+			item.CapitalCity = &CityLite{
+				Id:         int(cityId.Int64),
+				Name:       cityName.String,
+				RegionId:   int(cityRegionId.Int64),
+				RegionAbbr: cityRegionCode.String,
+			}
+		}
+
+		countries = append(countries, item)
+	}
+	return countries, nil
 }
 
 func LoadCountryList(db *sql.DB) ([]Country, error) {

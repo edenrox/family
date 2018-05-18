@@ -11,7 +11,7 @@ import (
 
 // Show a list of countries
 func countryList(w http.ResponseWriter, r *http.Request) {
-	countries, err := LoadCountryList(db)
+	countries, err := LoadFullCountryList(db)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error loading country list: %v", err), 500)
 		return

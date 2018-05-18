@@ -6,15 +6,22 @@
   <ul class="breadcrumb">
     <li class="active">Countries</li>
   </ul>
-  <table class="table table-striped" style="width: 300px">
+  <table class="table table-striped" style="width: 600px">
     <thead>
-      <tr><td>Code</td><td>Name</td></tr>
+      <tr><th>Code</th><th>Name</th><th>Capital City</th><th>GDP</th><th>Population</th></tr>
     </thead>
     <tbody>
       {{range .}}
       <tr>
         <td>{{.Code}}</td>
-        <td><a href="/country/view/{{.Code}}">{{.Name}}</a></td></tr>
+        <td><a href="/country/view/{{.Code}}">{{.Name}}</a></td>
+        {{if .CapitalCity}}
+        <td><a href="/country/view/{{.CapitalCity.Id}}">{{.CapitalCity.Name}}, {{.CapitalCity.RegionAbbr}}</a></td>
+        {{else}}
+        <td>-</td>
+        {{end}}
+        <td style="text-align: right;">{{.Gdp}}</td>
+        <td style="text-align: right;">{{.Population}}</td></tr>
       {{end}}
     </tbody>
   </table>
