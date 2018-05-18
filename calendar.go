@@ -39,7 +39,7 @@ type CalendarAnniversary struct {
 }
 
 func calendarDateFormatted(date time.Time) string {
-	return date.Format("Mon, Jan 2, 2006")
+	return date.Format("Jan 2, 2006")
 }
 
 func LoadPeopleCalendar(db *sql.DB) (*PeopleCalendar, error) {
