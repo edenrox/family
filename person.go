@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -32,6 +33,21 @@ type Person struct {
 	Children         []PersonLite
 	Spouses          []SpouseLite
 	Siblings         []PersonLite
+}
+
+type PersonData struct {
+	FirstName        string
+	MiddleName       string
+	LastName         string
+	NickName         string
+	Gender           string
+	IsAlive          bool
+	BirthDate        string
+	BirthCityId      int
+	IsBirthYearGuess bool
+	HomeCityId       int
+	MotherId         int
+	FatherId         int
 }
 
 func BuildFullName(firstName string, middleName string, lastName string, nickName string) string {
@@ -272,4 +288,37 @@ func readPersonLiteFromRows(rows *sql.Rows) (*PersonLite, error) {
 		item.FatherId = int(fatherId.Int64)
 	}
 	return &item, nil
+}
+
+func InsertPerson(db *sql.DB, data PersonData) (int, error) {
+	defer trace(traceName(fmt.Sprintf("InsertPerson(%v)", data)))
+
+	res, err := db.Exec(
+		"INSERT INTO people"+
+			" (first_name, middle_name, last_name, nick_name,"+
+			" mother_id, father_id, birth_date, is_birth_year_guess, is_alive,"+
+			" home_city_id, birth_city_id, gender)"+
+			" VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		data.FirstName, data.MiddleName, data.LastName, data.NickName,
+		getNullableInt(data.MotherId), getNullableInt(data.FatherId), getNullableString(data.BirthDate), data.IsBirthYearGuess, data.IsAlive,
+		getNullableInt(data.HomeCityId), getNullableInt(data.BirthCityId), data.Gender)
+	if err != nil {
+		return 0, err
+	}
+	personId, err := res.LastInsertId()
+	return int(personId), err
+}
+
+func getNullableInt(value int) sql.NullInt64 {
+	return sql.NullInt64{
+		Valid: value > 0,
+		Int64: int64(value),
+	}
+}
+
+func getNullableString(value string) sql.NullString {
+	return sql.NullString{
+		Valid:  strings.TrimSpace(value) != "",
+		String: strings.TrimSpace(value),
+	}
 }

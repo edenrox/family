@@ -1,0 +1,38 @@
+{{define "title"}}People : Add{{end}}
+{{define "content"}}
+  <div class="page-header">
+    <h1>Add a person</h1>
+  </div>
+  <ul class="breadcrumb">
+    <li><a href="/person/list">People</a> <span class="divider">&raquo;</span></li>
+    <li class="active">Add</li>
+  </ul>
+  <form action="/person/add" method="post">
+    <table class="table table-striped" style="width: 500px;">
+      <tbody>
+        <tr><th colspan="2">Name</th></tr>
+        <tr><td><label for="first_name">First</label></td><td><input type="text" name="first_name" /></td></tr>
+        <tr><td><label for="middle_name">Middle</label></td><td><input type="text" name="middle_name" /></td></tr>
+        <tr><td><label for="last_name">Last</label></td><td><input type="text" name="last_name" /></td></tr>
+        <tr><td><label for="nick_name">Nick</label></td><td><input type="text" name="nick_name" /></td></tr>
+        <tr><th colspan="2">Birth</th></tr>
+        <tr><td><label for="gender">Gender</label></td>
+            <td><input type="radio" name="gender" value="male"/> Male
+                <input type="radio" name="gender" value="female"/> Female</td></tr>
+        <tr><td><label for="birth_date">Birth date</label></td><td><input type="text" name="birth_date" placeholder="YYYY-MM-DD" /></td></tr>
+        <tr><td></td><td><input type="checkbox" name="is_birth_year_guess" value="1" />Is birth year estimate?</td></tr>
+        <tr><td></td><td><input type="checkbox" name="is_alive" value="1" checked="checked" />Is alive</td></tr>
+        <tr><td><label for="birth_city_id">City</label></td><td><input type="text" name="birth_city_id" /></td></tr>
+        <tr><th colspan="2">Home</th></tr>
+        <tr><td><label for="home_city_id">City</label></td><td><input type="text" name="home_city_id" /></td></tr>
+        <tr><th colspan="2">Relationships</th></tr>
+        <tr><td><label for="mother_id">Mother</label></td><td><input type="text" name="mother_id" /></td></tr>
+        <tr><td><label for="father_id">Father</label></td><td><input type="text" name="father_id" /></td></tr>
+        <tr><td></td><td>
+          <input type="submit" value="Add" class="btn btn-primary" />
+          <a href="/people/list" class="btn btn-danger">Cancel</a>
+        </td></tr>
+      </tbody>
+    </table>
+  </form>
+{{end}}
