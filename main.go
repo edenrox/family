@@ -41,6 +41,7 @@ func main() {
 	addCityRoutes()
 	addPersonRoutes()
 	addSpouseRoutes()
+	addCronRoutes()
 
 	http.ListenAndServe(":8090", nil)
 }

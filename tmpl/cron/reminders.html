@@ -1,0 +1,40 @@
+{{define "title"}}Cron : Reminders{{end}}
+{{define "content"}}
+  <div class="page-header">
+    <h1>Cron Reminders</h1>
+  </div>
+  <ul class="breadcrumb">
+    <li>Cron <span class="divider">&raquo;</span></li>
+    <li class="active">Reminders</li>
+  </ul>
+  <form action="/cron/reminders" method="post">
+    <table class="table table-striped" style="width: 500px;">
+      <tbody>
+        <tr><td><label for="start_date">Start Date</label></td>
+            <td><input type="text" name="start_date" id="start_date" value="{{.StartDateFormatted}}"></td></tr>
+        <tr><td><label>End Date</label></td>
+            <td>{{.EndDateFormatted}}</td></tr>
+        <tr><td></td><td><input type="submit" value="Go" class="btn btn-primary" /></td></tr>
+      </tbody>
+    </table>
+  </form>
+  <h2>Events</h2>
+  {{if .Events}}
+  <table class="table table-striped" style="width: 600px;">
+    <thead>
+      <tr><th>Date</th><th>Type</th><th>Details</th></tr>
+    </thead>
+    <tbody>
+      {{range .Events}}
+      <tr>
+        <td>{{.DateFormatted}}</td>
+        <td>{{.Type}}</td>
+        <td>{{.Caption}}</td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+  {{else}}
+  <p>No events found.</p>
+  {{end}}
+{{end}}
