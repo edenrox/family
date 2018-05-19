@@ -12,10 +12,15 @@ import (
 func personAdd(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		var data PersonData
-		data.FirstName = r.FormValue("first_name")
-		data.MiddleName = r.FormValue("middle_name")
-		data.LastName = r.FormValue("last_name")
-		data.NickName = r.FormValue("nick_name")
+		data.FirstName = strings.TrimSpace(r.FormValue("first_name"))
+		data.MiddleName = strings.TrimSpace(r.FormValue("middle_name"))
+		data.LastName = strings.TrimSpace(r.FormValue("last_name"))
+		data.NickName = strings.TrimSpace(r.FormValue("nick_name"))
+
+		if data.FirstName == "" {
+			http.Error(w, "Error, first name can not be empty.", 400)
+			return
+		}
 
 		if r.FormValue("gender") == "male" {
 			data.Gender = "M"
