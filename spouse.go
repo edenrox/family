@@ -3,12 +3,14 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"time"
 )
 
 type SpouseLite struct {
-	Person1 PersonLite
-	Person2 PersonLite
-	Status  int // 1=MARRIED,2=DATING,3=EX-MARRIED
+	Person1     PersonLite
+	Person2     PersonLite
+	Status      int // 1=MARRIED,2=DATING,3=EX-MARRIED
+	MarriedDate time.Time
 }
 
 func (s *SpouseLite) StatusFormatted() string {
@@ -26,7 +28,10 @@ func (s *SpouseLite) StatusFormatted() string {
 
 func LoadSpousesByPersonId(db *sql.DB, personId int) ([]SpouseLite, error) {
 	trace(traceName(fmt.Sprintf("LoadSpousesByPersonId(%d)", personId)))
-	rows, err := db.Query("SELECT person1_id, person2_id, status FROM spouses WHERE person1_id=? OR person2_id=? ORDER BY status", personId, personId)
+	rows, err := db.Query(
+		"SELECT person1_id, person2_id, status, married_date"+
+			" FROM spouses"+
+			" WHERE person1_id=? OR person2_id=? ORDER BY status", personId, personId)
 	if err != nil {
 		return nil, err
 	}
@@ -38,9 +43,13 @@ func LoadSpousesByPersonId(db *sql.DB, personId int) ([]SpouseLite, error) {
 	for rows.Next() {
 		item := SpouseLite{Person1: *person1}
 		var person1Id, person2Id int
-		err = rows.Scan(&person1Id, &person2Id, &item.Status)
+		var marriedDate sql.NullString
+		err = rows.Scan(&person1Id, &person2Id, &item.Status, &marriedDate)
 		if err != nil {
 			return nil, err
+		}
+		if marriedDate.Valid {
+			item.MarriedDate, _ = time.Parse("2006-01-02", marriedDate.String)
 		}
 		if person2Id == personId {
 			person2Id = person1Id
