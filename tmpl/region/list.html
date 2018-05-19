@@ -1,0 +1,30 @@
+{{define "title"}}Region list{{end}}
+{{define "content"}}
+  <div class="page-header">
+    <div style="float: right;"><a href="/region/add" class="btn btn-primary"><i class="icon-plus icon-white"></i> Add a Region</a></div>
+    <h1>Region list</h1>
+  </div>
+  <ul class="breadcrumb">
+    <li class="active">Regions</li>
+  </ul>
+  <table class="table table-striped" style="width: 600px">
+    <thead>
+      <tr><th>Country</th><th>Id</th><th>Code</th><th>Name</th></tr>
+    </thead>
+    <tbody>
+      {{range .}}
+      <tr>
+        <td colspan="4"><a href="/country/view/{{.CountryCode}}">{{.CountryName}}</a></td>
+      </tr>
+      {{range .Regions}}
+      <tr>
+        <td></td>
+        <td>{{.Id}}</td>
+        <td>{{.Code}}</td>
+        <td><a href="/region/view/{{.Id}}">{{.Name}}</a></td>
+      </tr>
+      {{end}}
+      {{end}}
+    </tbody>
+  </table>
+{{end}}

@@ -7,6 +7,39 @@ import (
 	"net/http"
 )
 
+type RegionGroup struct {
+	CountryName string
+	CountryCode string
+	Regions     []RegionLite
+}
+
+func regionList(w http.ResponseWriter, r *http.Request) {
+	regions, err := LoadRegionList(db)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error loading regions: %v", err), 500)
+		return
+	}
+
+	var regionGroups []RegionGroup
+	var group *RegionGroup
+	for _, region := range regions {
+		if group == nil || group.CountryCode != region.CountryCode {
+			item := RegionGroup{
+				CountryName: region.CountryName,
+				CountryCode: region.CountryCode,
+			}
+			regionGroups = append(regionGroups, item)
+			group = &regionGroups[len(regionGroups)-1]
+		}
+		group.Regions = append(group.Regions, region)
+	}
+
+	err = template.Must(template.ParseFiles("tmpl/layout/main.html", "tmpl/region/list.html")).Execute(w, regionGroups)
+	if err != nil {
+		panic(err)
+	}
+}
+
 func regionJsonList(w http.ResponseWriter, r *http.Request) {
 	regions, err := LoadRegionList(db)
 	if err != nil {
@@ -107,6 +140,7 @@ func regionDelete(w http.ResponseWriter, r *http.Request) {
 
 func addRegionRoutes() {
 	http.HandleFunc("/region/add", regionAdd)
+	http.HandleFunc("/region/list", regionList)
 	http.HandleFunc("/region/json/list", regionJsonList)
 	http.HandleFunc("/region/view/", regionView)
 	http.HandleFunc("/region/delete/", regionDelete)
