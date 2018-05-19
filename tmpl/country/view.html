@@ -24,20 +24,21 @@
   </table>
   {{end}}
   <h2>Regions</h2>
-  <table class="table table-striped" style="width:300px;">
+  <table class="table table-striped" style="width:400px;">
     <thead>
-      <tr><th>Name</th><th>Code</th></tr>
+      <tr><th style="width: 32px;">Icon</th><th>Name</th><th>Code</th></tr>
     </thead>
     <tbody>
       {{range .Regions}}
       <tr>
+        <td style="padding-top: 0px; padding-bottom: 0px;"><img src="/assets/img/flags/state/{{.CountryCode}}/{{.Code}}.png" style="width: 32px; height: 32px;" /></td>
         <td><a href="/region/view/{{.Id}}">{{.Name}}</a></td>
         <td>{{.Code}}</td>
       </tr>
       {{end}}
     </tbody>
     <tfoot>
-      <tr><td><a href="/region/add?country_code={{.Country.Code}}" class="btn btn-primary"><i class="icon-plus icon-white"></i> Add a Region</a></td></tr>
+      <tr><td colspan="3"><a href="/region/add?country_code={{.Country.Code}}" class="btn btn-primary"><i class="icon-plus icon-white"></i> Add a Region</a></td></tr>
     </tfoot>
   </table>
 {{end}}
