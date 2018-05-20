@@ -98,7 +98,7 @@ func InsertSpouse(db *sql.DB, person1Id int, person2Id int, status int, marriedD
 	}
 	_, err := db.Exec(
 		"INSERT INTO spouses"+
-			" (person1_id, person2_id, status, marriedDate)"+
+			" (person1_id, person2_id, status, married_date)"+
 			" VALUES(?, ?, ?, ?)",
 		person1Id, person2Id, status, nullableMariedDate)
 	if err != nil {
