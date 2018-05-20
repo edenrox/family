@@ -11,7 +11,7 @@ import (
 
 // Show a list of countries
 func countryList(w http.ResponseWriter, r *http.Request) {
-	countries, err := LoadFullCountryList(db)
+	countries, err := LoadCountryList(db)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error loading country list: %v", err), 500)
 		return
@@ -54,19 +54,12 @@ func countryView(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Error loading regions: %v", err), 500)
 		return
 	}
-	var capitalCity *CityLite
-	if item.CapitalCityId > 0 {
-		capitalCity, err = LoadCityById(db, item.CapitalCityId)
-	}
-
 	data := struct {
-		Country     *Country
-		Regions     []RegionLite
-		CapitalCity *CityLite
+		Country *Country
+		Regions []RegionLite
 	}{
 		item,
 		regions,
-		capitalCity,
 	}
 
 	// Output the result
@@ -79,20 +72,28 @@ func countryView(w http.ResponseWriter, r *http.Request) {
 // Add a new country
 func countryAdd(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
-		countryCode := r.FormValue("code")
-		countryName := r.FormValue("name")
-		capitalCityId, err := strconv.Atoi(r.FormValue("capital_city_id"))
-		if countryCode == "" || countryName == "" {
+		capitalCityId, _ := strconv.Atoi(r.FormValue("capital_city_id"))
+		gdp, _ := strconv.Atoi(r.FormValue("gdp"))
+		population, _ := strconv.Atoi(r.FormValue("population"))
+		item := CountryData{
+			Code:           strings.TrimSpace(r.FormValue("code")),
+			Name:           strings.TrimSpace(r.FormValue("name")),
+			CapitalCityId:  capitalCityId,
+			Gdp:            gdp,
+			Population:     population,
+			HasRegionIcons: r.FormValue("has_region_icons") == "1",
+		}
+		if item.Code == "" || item.Name == "" {
 			http.Error(w, "Bad request, empty code or name", 400)
 			return
 		}
 
-		err = InsertCountry(db, countryName, countryCode, capitalCityId)
+		err := InsertCountry(db, item)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Error inserting country: %v", err), 500)
 			return
 		}
-		http.Redirect(w, r, fmt.Sprintf("/country/view/%s", countryCode), 302)
+		http.Redirect(w, r, fmt.Sprintf("/country/view/%s", item.Code), 302)
 		return
 	}
 
@@ -112,21 +113,28 @@ func countryEdit(w http.ResponseWriter, r *http.Request) {
 	var originalCode = parts[3]
 
 	if r.Method == "POST" {
-		countryName := r.FormValue("name")
-		countryCode := r.FormValue("code")
 		capitalCityId, _ := strconv.Atoi(r.FormValue("capital_city_id"))
-
-		if countryCode == "" || countryName == "" {
+		gdp, _ := strconv.Atoi(r.FormValue("gdp"))
+		population, _ := strconv.Atoi(r.FormValue("population"))
+		item := CountryData{
+			Code:           strings.TrimSpace(r.FormValue("code")),
+			Name:           strings.TrimSpace(r.FormValue("name")),
+			CapitalCityId:  capitalCityId,
+			Gdp:            gdp,
+			Population:     population,
+			HasRegionIcons: r.FormValue("has_region_icons") == "1",
+		}
+		if item.Code == "" || item.Name == "" {
 			http.Error(w, "Bad request, empty code or name", 400)
 			return
 		}
 
-		err := UpdateCountry(db, originalCode, countryName, countryCode, capitalCityId)
+		err := UpdateCountry(db, originalCode, item)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Error updating country: %v", err), 500)
 			return
 		}
-		http.Redirect(w, r, fmt.Sprintf("/country/view/%s", countryCode), 302)
+		http.Redirect(w, r, fmt.Sprintf("/country/view/%s", item.Code), 302)
 		return
 	}
 

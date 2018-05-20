@@ -7,25 +7,31 @@ import (
 )
 
 type Country struct {
-	Code          string
-	Name          string
-	CapitalCityId int
+	Code           string
+	Name           string
+	CapitalCity    *CityLite
+	Gdp            int
+	Population     int
+	HasRegionIcons bool
 }
 
-type CountryFull struct {
-	Code        string
-	Name        string
-	CapitalCity *CityLite
-	Gdp         int
-	Population  int
+type CountryData struct {
+	Code           string
+	Name           string
+	CapitalCityId  int
+	Gdp            int
+	Population     int
+	HasRegionIcons bool
 }
 
 func LoadCountryByCode(db *sql.DB, code string) (*Country, error) {
 	defer trace(traceName(fmt.Sprintf("LoadCountryBycode(%s)", code)))
 	rows, err := db.Query(
-		"SELECT code, name, capital_city_id"+
-			" FROM countries"+
-			" WHERE code=?", code)
+		"SELECT co.code, co.name, co.gdp, co.population, co.has_region_icons,"+
+			" ci.city_id, ci.city_name, ci.region_id, ci.region_code"+
+			" FROM countries co"+
+			"   LEFT JOIN city_view ci ON ci.city_id = co.capital_city_id"+
+			" WHERE co.code=?", code)
 	if err != nil {
 		return nil, err
 	}
@@ -43,48 +49,14 @@ func LoadCountryByCode(db *sql.DB, code string) (*Country, error) {
 	return item, nil
 }
 
-func LoadFullCountryList(db *sql.DB) ([]CountryFull, error) {
-	defer trace(traceName("LoadFullCountryList"))
-	rows, err := db.Query(
-		"SELECT co.code, co.name, co.gdp, co.population, ci.city_id, ci.city_name, ci.region_id, ci.region_code" +
-			" FROM countries co" +
-			"   LEFT JOIN city_view ci ON ci.city_id = co.capital_city_id" +
-			" ORDER BY co.name")
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	// Fetch the rows
-	var countries []CountryFull
-	for rows.Next() {
-		var item CountryFull
-		var cityId, cityRegionId sql.NullInt64
-		var cityName, cityRegionCode sql.NullString
-		err = rows.Scan(&item.Code, &item.Name, &item.Gdp, &item.Population, &cityId, &cityName, &cityRegionId, &cityRegionCode)
-		if err != nil {
-			return nil, err
-		}
-		if cityId.Valid {
-			item.CapitalCity = &CityLite{
-				Id:         int(cityId.Int64),
-				Name:       cityName.String,
-				RegionId:   int(cityRegionId.Int64),
-				RegionAbbr: cityRegionCode.String,
-			}
-		}
-
-		countries = append(countries, item)
-	}
-	return countries, nil
-}
-
 func LoadCountryList(db *sql.DB) ([]Country, error) {
 	defer trace(traceName("LoadCountryList"))
 	rows, err := db.Query(
-		"SELECT code, name, capital_city_id" +
-			" FROM countries" +
-			" ORDER BY name")
+		"SELECT co.code, co.name, co.gdp, co.population, co.has_region_icons," +
+			" ci.city_id, ci.city_name, ci.region_id, ci.region_code" +
+			" FROM countries co" +
+			"   LEFT JOIN city_view ci ON ci.city_id = co.capital_city_id" +
+			" ORDER BY co.name")
 	if err != nil {
 		return nil, err
 	}
@@ -104,10 +76,17 @@ func LoadCountryList(db *sql.DB) ([]Country, error) {
 
 func readCountryFromRows(rows *sql.Rows) (*Country, error) {
 	country := Country{}
-	var capitalCityId sql.NullInt64
-	err := rows.Scan(&country.Code, &country.Name, &capitalCityId)
+	var capitalCityId, capitalCityRegionId sql.NullInt64
+	var capitalCityName, capitalCityRegionCode sql.NullString
+	err := rows.Scan(&country.Code, &country.Name, &country.Gdp, &country.Population, &country.HasRegionIcons,
+		&capitalCityId, &capitalCityName, &capitalCityRegionId, &capitalCityRegionCode)
 	if capitalCityId.Valid {
-		country.CapitalCityId = int(capitalCityId.Int64)
+		country.CapitalCity = &CityLite{
+			Id:         int(capitalCityId.Int64),
+			Name:       capitalCityName.String,
+			RegionId:   int(capitalCityRegionId.Int64),
+			RegionAbbr: capitalCityRegionCode.String,
+		}
 	}
 	if err != nil {
 		return nil, err
@@ -133,13 +112,16 @@ func DeleteCountryByCode(db *sql.DB, code string) error {
 	return nil
 }
 
-func InsertCountry(db *sql.DB, name string, code string, capitalCityId int) error {
-	log.Printf("Insert country (name: %s, code: %s, capitalCityId: %d)", name, code, capitalCityId)
+func InsertCountry(db *sql.DB, data CountryData) error {
+	log.Printf("Insert country (data: %v)", data)
 	nullableCapitalCityId := sql.NullInt64{
-		Int64: int64(capitalCityId),
-		Valid: capitalCityId > 0,
+		Int64: int64(data.CapitalCityId),
+		Valid: data.CapitalCityId > 0,
 	}
-	res, err := db.Exec("INSERT INTO countries (name, code, capital_city_id) VALUES(?, ?, ?)", name, code, nullableCapitalCityId)
+	res, err := db.Exec("INSERT INTO countries"+
+		" (name, code, capital_city_id, gdp, population, has_region_icons)"+
+		" VALUES(?, ?, ?, ?, ?, ?)",
+		data.Name, data.Code, nullableCapitalCityId, data.Gdp, data.Population, data.HasRegionIcons)
 	if err != nil {
 		return err
 	}
@@ -147,12 +129,15 @@ func InsertCountry(db *sql.DB, name string, code string, capitalCityId int) erro
 	return err
 }
 
-func UpdateCountry(db *sql.DB, originalCode string, name string, code string, capitalCityId int) error {
-	log.Printf("Update country (originalCode: %s, name: %s, code: %s, capitalCityId: %d)", originalCode, name, code, capitalCityId)
+func UpdateCountry(db *sql.DB, originalCode string, data CountryData) error {
+	log.Printf("Update country (originalCode: %s, data: %v)", originalCode, data)
 	nullableCapitalCityId := sql.NullInt64{
-		Int64: int64(capitalCityId),
-		Valid: capitalCityId > 0,
+		Int64: int64(data.CapitalCityId),
+		Valid: data.CapitalCityId > 0,
 	}
-	_, err := db.Exec("UPDATE countries SET name=?, code=?, capital_city_id=? WHERE code=?", name, code, nullableCapitalCityId, originalCode)
+	_, err := db.Exec("UPDATE countries "+
+		"SET name=?, code=?, capital_city_id=?, gdp=?, population=?, has_region_icons=? "+
+		"WHERE code=?",
+		data.Name, data.Code, nullableCapitalCityId, data.Gdp, data.Population, data.HasRegionIcons, originalCode)
 	return err
 }

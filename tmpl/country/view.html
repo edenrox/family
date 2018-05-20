@@ -13,8 +13,10 @@
       <tr><td>Icon</td><td style="padding-top: 0px; padding-bottom: 0px;"><img src="/assets/img/flags/country/{{.Code}}.png" style="width: 32px; height: 32px;" /></td></tr>
       <tr><td>Code</td><td>{{.Code}}</td></tr>
       <tr><td>Name</td><td>{{.Name}}</td></tr>
-      {{if $.CapitalCity}}
-      <tr><td>Capital City</td><td><a href="/city/view/{{$.CapitalCity.Id}}">{{$.CapitalCity.Name}}, {{$.CapitalCity.RegionAbbr}}</a></td></tr>
+      <tr><td>Gdp</td><td>{{.Gdp}}</td></tr>
+      <tr><td>Population</td><td>{{.Population}}</td></tr>
+      {{if .CapitalCity}}
+      <tr><td>Capital City</td><td><a href="/city/view/{{.CapitalCity.Id}}">{{.CapitalCity.Name}}, {{.CapitalCity.RegionAbbr}}</a></td></tr>
       {{end}}
       <tr><td>Actions</td><td>
         <a href="/country/edit/{{.Code}}" class="btn btn-primary"><i class="icon-pencil icon-white"></i> Edit</a>
@@ -26,12 +28,19 @@
   <h2>Regions</h2>
   <table class="table table-striped" style="width:400px;">
     <thead>
-      <tr><th style="width: 32px;">Icon</th><th>Name</th><th>Code</th></tr>
+      <tr>
+        {{if $.Country.HasRegionIcons}}
+        <th style="width: 32px;">Icon</th>
+        {{end}}
+        <th>Name</th>
+        <th>Code</th></tr>
     </thead>
     <tbody>
       {{range .Regions}}
       <tr>
+        {{if $.Country.HasRegionIcons}}
         <td style="padding-top: 0px; padding-bottom: 0px;"><img src="/assets/img/flags/state/{{.CountryCode}}/{{.Code}}.png" style="width: 32px; height: 32px;" /></td>
+        {{end}}
         <td><a href="/region/view/{{.Id}}">{{.Name}}</a></td>
         <td>{{.Code}}</td>
       </tr>

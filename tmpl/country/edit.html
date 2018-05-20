@@ -9,18 +9,50 @@
     <li class="active">Edit</li>
   </ul>
   <form action="/country/edit/{{.Code}}" method="post">
+    <input type="hidden" name="capital_city_id" value="{{.CapitalCity.Id}}" />
     <table class="table table-striped" style="width: 400px;">
       <tbody>
-        <tr><td>Code</td><td><input type="text" name="code" value="{{.Code}}" class="input-small" /></td></tr>
-        <tr><td>Name</td><td><input type="text" name="name" value="{{.Name}}" /></td></tr>
-        <tr><td>Capital City</td><td><input type="text" name="capital_city_id" value="{{.CapitalCityId}}" /></td></tr>
-        <tr><td></td><td>
-          <input type="submit" value="Save" class="btn btn-primary" />
-          <a href="/country/view/{{.Code}}" class="btn btn-danger">Cancel</a>
-        </td></tr>
+        <tr>
+          <td><label for="code">Code</label></td>
+          <td><input type="text" name="code" value="{{.Code}}" class="input-small" /></td>
+        </tr>
+        <tr>
+          <td><label for="name">Name</label></td>
+          <td><input type="text" name="name" value="{{.Name}}" /></td>
+        </tr>
+        <tr>
+          <td><label for="capital_city_name">Capital City</label></td>
+          <td><div class="input-append">
+            <input type="text" name="capital_city_name" id="capital_city_name" autocomplete="new-password" value="{{.CapitalCity.Name}}" />
+            <span class="add-on"><i class="icon-home"></i></span>
+          </div></td>
+        </tr>
+        <tr>
+          <td><label for="gdp">GDP</label></td>
+          <td><input type="text" name="gdp" value="{{.Gdp}}" /></td>
+        </tr>
+        <tr>
+          <td><label for="population">Population</label></td>
+          <td><input type="text" name="population" value="{{.Population}}" /></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><label class="checkbox"><input type="checkbox" name="has_region_icons" value="1" {{if .HasRegionIcons}}checked{{end}} />Has region icons</label></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>
+            <input type="submit" value="Save" class="btn btn-primary" />
+            <a href="/country/view/{{.Code}}" class="btn btn-danger">Cancel</a>
+          </td>
+        </tr>
       </tbody>
     </table>
   </form>
-</body>
-</html>
+  <script type="text/javascript" src="/assets/js/typeahead.js"></script>
+  <script type="text/javascript">
+  $(function() {
+    cityTypeAhead('capital_city_id', 'capital_city_name');
+  });
+  </script>
 {{end}}
