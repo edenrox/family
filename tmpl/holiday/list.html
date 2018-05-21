@@ -1,0 +1,28 @@
+{{define "title"}}Holiday list{{end}}
+{{define "content"}}
+  <div class="page-header">
+    <h1>Holiday list</h1>
+  </div>
+  <ul class="breadcrumb">
+    <li class="active">Holidays</li>
+  </ul>
+  <table class="table table-striped" style="width: 600px">
+    <thead>
+      <tr><th>Year</th><th>Date</th><th>Name</th></tr>
+    </thead>
+    <tbody>
+      {{range .}}
+      <tr>
+        <td colspan="3"><b>{{.Year}}</b></td>
+      </tr>
+        {{range .Holidays}}
+      <tr>
+        <td></td>
+        <td>{{.Date.Format "Jan 2, 2006"}}</td>
+        <td>{{.Name}}</td>
+      </tr>
+        {{end}}
+      {{end}}
+    </tbody>
+  </table>
+{{end}}

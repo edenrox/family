@@ -42,6 +42,7 @@ func main() {
 	addPersonRoutes()
 	addSpouseRoutes()
 	addCronRoutes()
+	addHolidayRoutes()
 
 	http.ListenAndServe(":8090", nil)
 }
