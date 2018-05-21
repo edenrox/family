@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 )
 
 type Country struct {
@@ -22,6 +24,14 @@ type CountryData struct {
 	Gdp            int
 	Population     int
 	HasRegionIcons bool
+}
+
+func (c *Country) GdpFormatted() string {
+	return message.NewPrinter(language.English).Sprint(c.Gdp)
+}
+
+func (c *Country) PopulationFormatted() string {
+	return message.NewPrinter(language.English).Sprint(c.Population)
 }
 
 func LoadCountryByCode(db *sql.DB, code string) (*Country, error) {
