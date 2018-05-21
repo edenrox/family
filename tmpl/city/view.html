@@ -19,8 +19,8 @@
     <tbody>
       <tr><td>Id</td><td>{{.Id}}</td></tr>
       <tr><td>Name</td><td>{{.Name}}</td></tr>
-      {{if .Latitude}}
-      <tr><td>Location</td><td>{{.Latitude}}, {{.Longitude}}</td></tr>
+      {{if .HasLocation}}
+      <tr><td>Location</td><td>{{.FormatLocation}}</td></tr>
       {{end}}
       <tr><td>Region</td><td><a href="/region/view/{{$.Region.Id}}">{{$.Region.Name}}</a></td></tr>
       <tr><td>Country</td><td><a href="/country/view/{{$.Region.CountryCode}}">{{$.Region.CountryName}}</a></td></tr>

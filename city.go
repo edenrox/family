@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"math"
 )
 
 type CityLite struct {
@@ -17,6 +18,22 @@ type CityLite struct {
 
 func (c *CityLite) Format() string {
 	return fmt.Sprintf("%s, %s, %s", c.Name, c.RegionAbbr, c.CountryAbbr)
+}
+
+func (c *CityLite) HasLocation() bool {
+	return c.Latitude != 0
+}
+
+func (c *CityLite) FormatLocation() string {
+	latDir := "N"
+	if c.Latitude < 0 {
+		latDir = "S"
+	}
+	longDir := "E"
+	if c.Longitude < 0 {
+		longDir = "W"
+	}
+	return fmt.Sprintf("%.3f %s, %.3f %s", math.Abs(c.Latitude), latDir, math.Abs(c.Longitude), longDir)
 }
 
 func readCityListFromRows(rows *sql.Rows) ([]CityLite, error) {
