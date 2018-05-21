@@ -48,23 +48,38 @@
       <tr><td colspan="2">Children</td></tr>
       {{range .Children}}
       <tr><td></td><td><a href="/person/view/{{.Id}}">{{.Name}}</a></td></tr>
+      {{else}}
+      <tr><td></td><td>No children</td></tr>
       {{end}}
       <tr><td colspan="2">Siblings</td></tr>
       {{range .Siblings}}
       <tr><td></td><td><a href="/person/view/{{.Id}}">{{.Name}}</a></td></tr>
+      {{else}}
+      <tr><td></td><td>No children</td></tr>
       {{end}}
-      <tr><td colspan="2">Spouses</td></tr>
+      <tr><td>Spouses</td><td><a href="/spouse/add?person1_id={{.Id}}" class="btn btn-mini btn-primary"><i class="icon-plus icon-white"></i> Add Spouse</a></td></tr>
       {{range .Spouses}}
-      <tr><td></td>
+      <tr>
+        <td></td>
         <td>
          <a href="/person/view/{{.Person2.Id}}">{{.Person2.Name}}</a> - {{.StatusFormatted}}
          <a href="/spouse/delete?person1_id={{.Person1.Id}}&amp;person2_id={{.Person2.Id}}"><i class="icon-remove"></i></a>
          {{if not .MarriedDate.IsZero}}
          <br/> {{.MarriedDate.Format "Jan 2, 2006"}}
          {{end}}
-       </td></tr>
+       </td>
+      </tr>
+      {{else}}
+      <tr><td></td><td>No spouses</td></tr>
       {{end}}
-      <tr><td></td><td><a href="/spouse/add?person1_id={{.Id}}" class="btn btn-primary"><i class="icon-plus icon-white"></i> Add Spouse</a></td></tr>
+      <tr><td colspan="2"><strong>Actions</strong></td></tr>
+      <tr>
+        <td></td>
+        <td>
+          <a href="/person/edit/{{.Id}}" class="btn btn-primary"><i class="icon-pencil icon-white"></i> Edit</a>
+          <a href="/person/delete/{{.Id}}" class="btn btn-danger"><i class="icon-remove icon-white"></i> Delete</a>
+        </td>
+      </tr>
     </tbody>
   </table>
   <p><a href="/person/list" class="btn btn-primary">&laquo; People list</a></p>
