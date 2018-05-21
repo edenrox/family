@@ -6,14 +6,27 @@ CREATE TABLE `cities` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `region_id` int(11) DEFAULT NULL,
   `name` varchar(45) DEFAULT NULL,
+  `lat` decimal(10,8) NOT NULL DEFAULT '0.00000000',
+  `lng` decimal(11,8) NOT NULL DEFAULT '0.00000000',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `countries` (
   `code` char(2) NOT NULL,
   `name` varchar(45) DEFAULT NULL,
+  `capital_city_id` int(11) DEFAULT NULL,
+  `gdp` int(11) NOT NULL DEFAULT '0',
+  `population` int(11) NOT NULL DEFAULT '0',
+  `has_region_icons` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `holidays` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(45) NOT NULL,
+  `date` date NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `people` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -24,6 +37,7 @@ CREATE TABLE `people` (
   `mother_id` int(11) DEFAULT NULL,
   `father_id` int(11) DEFAULT NULL,
   `birth_date` date DEFAULT NULL,
+  `is_birth_year_guess` tinyint(1) NOT NULL DEFAULT '0',
   `is_alive` tinyint(1) NOT NULL DEFAULT '1',
   `home_city_id` int(11) DEFAULT NULL,
   `birth_city_id` int(11) DEFAULT NULL,
@@ -52,6 +66,9 @@ CREATE VIEW `city_view` AS
     SELECT
         `ci`.`id` AS `city_id`,
         `ci`.`name` AS `city_name`,
+        `ci`.`lat` AS `lat`,
+        `ci`.`lng` AS `lng`,
+        `r`.`id` AS `region_id`,
         `r`.`name` AS `region_name`,
         `r`.`code` AS `region_code`,
         `co`.`code` AS `country_code`,
@@ -60,3 +77,16 @@ CREATE VIEW `city_view` AS
         ((`family`.`cities` `ci`
         JOIN `family`.`regions` `r` ON ((`ci`.`region_id` = `r`.`id`)))
         JOIN `family`.`countries` `co` ON ((`co`.`code` = `r`.`country_code`)));
+
+CREATE VIEW `region_view` AS
+    SELECT
+        `r`.`id` AS `region_id`,
+        `r`.`name` AS `region_name`,
+        `r`.`code` AS `region_code`,
+        `c`.`code` AS `country_code`,
+        `c`.`name` AS `country_name`,
+        `c`.`has_region_icons` AS `has_region_icon`
+    FROM
+        (`family`.`regions` `r`
+        JOIN `family`.`countries` `c` ON ((`c`.`code` = `r`.`country_code`)))
+    ORDER BY `c`.`name`,`r`.`name`;
