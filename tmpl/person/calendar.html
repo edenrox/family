@@ -9,11 +9,11 @@
   </ul>
   <table class="table table-striped" style="width: 900px">
     <thead>
-      <tr><th>Month</th><th>Details</th><th>People</th><th>Event</th><th>Date</th></tr>
+      <tr><th>Month</th><th>Day</th><th>Details</th><th>Event</th><th>Date</th></tr>
     </thead>
     <tbody>
       {{range .Months}}
-      <tr><td colspan="5">{{.Name}}</td></tr>
+      <tr><td colspan="5"><b>{{.Name}}</b></td></tr>
         {{range .Events}}
         <tr>
           <td></td>
