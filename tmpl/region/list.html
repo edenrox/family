@@ -9,15 +9,17 @@
   </ul>
   <table class="table table-striped" style="width: 600px">
     <thead>
-      <tr><th>Country</th><th>Id</th><th>Code</th><th>Name</th></tr>
+      <tr><th></th><th>Country</th><th>Id</th><th>Code</th><th>Name</th></tr>
     </thead>
     <tbody>
       {{range .}}
       <tr>
+        <td style="padding: 0px; text-align: center;"><img src="/assets/img/flags/country/{{.CountryCode}}.png" style="width: 32px; height: 32px;"/></td>
         <td colspan="4"><a href="/country/view/{{.CountryCode}}">{{.CountryName}}</a></td>
       </tr>
       {{range .Regions}}
       <tr>
+        <td></td>
         <td></td>
         <td>{{.Id}}</td>
         <td>{{.Code}}</td>
