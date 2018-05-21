@@ -9,11 +9,26 @@
     <li class="active">Add Spouse</li>
   </ul>
   <form action="/spouse/add" method="POST">
+    <input type="hidden" name="person1_id" id="person1_id" value="{{.Id}}"/>
+    <input type="hidden" name="person2_id" id="person2_id"/>
     <table class="table table-striped" style="width: 400px;">
       <tbody>
-        <tr><td>Person 1:</td><td><input type="text" name="person1_id" value="{{.Id}}"/><br/> {{.Name}}</td></tr>
-        <tr><td>Person 2:</td><td><input type="text" name="person2_id" /></td></tr>
-        <tr><td>Status:</td>
+        <tr>
+          <td><label for="person1_name">Person 1:</label></td>
+          <td><div class="input-append">
+            <input type="text" name="person1_name" id="person1_name" autocomplete="new-password" value="{{.Name}}" />
+            <span class="add-on"><i class="icon-user"></i></span>
+          </div></td>
+        </tr>
+        <tr>
+          <td><label for="person1_name">Person 2:</td>
+          <td><div class="input-append">
+            <input type="text" name="person2_name" id="person2_name" autocomplete="new-password" />
+            <span class="add-on"><i class="icon-user"></i></span>
+          </div></td>
+        </tr>
+        <tr>
+          <td>Status:</td>
           <td>
             <select name="status">
               <option value="1">Maried</option>
@@ -21,8 +36,11 @@
               <option value="3">Ex-Married</option>
             </select>
           </td></tr>
-        <tr><td>Married Date:</td><td><input type="text" name="married_date" placeholder="YYYY-MM-DD" /></td></tr>
-        <tr><td></td>
+        <tr>
+          <td><label for="married_date">Married Date:</label></td>
+          <td><input type="text" name="married_date" placeholder="YYYY-MM-DD" /></td></tr>
+        <tr>
+          <td></td>
           <td>
             <input type="submit" value="Save" class="btn btn-primary"/>
             <a href="/person/view/{{.Id}}" class="btn btn-danger">Cancel</a>
@@ -30,4 +48,11 @@
       </tbody>
     </table>
   </form>
+  <script type="text/javascript" src="/assets/js/typeahead.js"></script>
+  <script type="text/javascript">
+  $(function() {
+    personTypeAhead('person1_id', 'person1_name');
+    personTypeAhead('person2_id', 'person2_name');
+  });
+  </script>
 {{end}}
