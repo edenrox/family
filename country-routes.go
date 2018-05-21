@@ -105,12 +105,11 @@ func countryAdd(w http.ResponseWriter, r *http.Request) {
 
 // Add a new country
 func countryEdit(w http.ResponseWriter, r *http.Request) {
-	parts := strings.Split(r.URL.Path, "/")
-	if len(parts) < 4 {
-		http.Error(w, "Error, no country specified", 400)
+	originalCode, err := getPathParam(r, "countryCode", 3)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error parsing countryCode: %v", err), 400)
 		return
 	}
-	var originalCode = parts[3]
 
 	if r.Method == "POST" {
 		capitalCityId, _ := strconv.Atoi(r.FormValue("capital_city_id"))
