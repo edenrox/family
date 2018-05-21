@@ -11,15 +11,31 @@
   </ul>
   <table class="table table-striped" style="width: 300px;">
     <tbody>
-        <tr><td>Icon</td><td style="padding-top: 0px; padding-bottom: 0px;"><img src="/assets/img/flags/state/{{.CountryCode}}/{{.Code}}.png" style="width: 32px; height: 32px;" /></td></tr>
-      <tr><td>Id</td><td>{{.Id}}</td></tr>
-      <tr><td>Code</td><td>{{.Code}}</td></tr>
-      <tr><td>Name</td><td>{{.Name}}</td></tr>
-      <tr><td>Country</td><td><a href="/country/view/{{.CountryCode}}">{{.CountryName}}</a></td></tr>
-      <tr><td>Actions</td><td>
-        <a href="/region/edit/{{.Id}}" class="btn btn-primary"><i class="icon-pencil icon-white"></i> Edit</a>
-        <a href="/region/delete/{{.Id}}" class="btn btn-danger"><i class="icon-remove icon-white"></i> Delete</a>
-      </td></tr>
+      {{if .HasRegionIcon}}
+      <tr>
+        <td>Icon</td>
+        <td style="padding-top: 0px; padding-bottom: 0px;"><img src="/assets/img/flags/state/{{.CountryCode}}/{{.Code}}.png" style="width: 32px; height: 32px;" /></td>
+      </tr>
+      {{end}}
+      <tr>
+        <td>Id</td><td>{{.Id}}</td>
+      </tr>
+      <tr>
+        <td>Code</td><td>{{.Code}}</td>
+      </tr>
+      <tr>
+        <td>Name</td><td>{{.Name}}</td>
+      </tr>
+      <tr>
+        <td>Country</td><td><a href="/country/view/{{.CountryCode}}">{{.CountryName}}</a></td>
+      </tr>
+      <tr>
+        <td>Actions</td>
+        <td>
+          <a href="/region/edit/{{.Id}}" class="btn btn-primary"><i class="icon-pencil icon-white"></i> Edit</a>
+          <a href="/region/delete/{{.Id}}" class="btn btn-danger"><i class="icon-remove icon-white"></i> Delete</a>
+        </td>
+      </tr>
     </tbody>
   </table>
   {{end}}

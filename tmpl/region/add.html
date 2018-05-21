@@ -10,18 +10,29 @@
   <form action="/region/add" method="post">
     <table class="table table-striped"  style="width: 300px;">
       <tbody>
-        <tr><td>Name</td><td><input type="text" name="name" /></td></tr>
-        <tr><td>Code</td><td><input type="text" name="code" class="input-small" /></td></tr>
-        <tr><td>Country</td><td>
+        <tr>
+          <td><label for="name">Name</label></td>
+          <td><input type="text" name="name" /></td></tr>
+        <tr>
+          <td><label for="code">Code</label></td>
+          <td><input type="text" name="code" class="input-small" /></td></tr>
+        <tr>
+          <td><label for="country_code">Country</label></td>
+          <td>
 <select name="country_code">
 {{range .Countries}}
   <option value="{{.Code}}" {{if eq .Code $.SelectedCountryCode}}selected="selected"{{end}}>{{.Name}}</option>
 {{end}}
-</select></td></tr>
-        <tr><td></td><td>
+</select>
+         </td>
+        </tr>
+        <tr>
+         <td></td>
+         <td>
           <input type="submit" value="Add" class="btn btn-primary" />
           <a href="/country/list" class="btn btn-danger">Cancel</a>
-        </td></tr>
+         </td>
+        </tr>
       </tbody>
     </table>
   </form>
