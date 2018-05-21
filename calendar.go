@@ -20,11 +20,9 @@ type CalendarMonth struct {
 }
 
 type CalendarEvent struct {
-	Day           int
-	Date          time.Time
-	DateFormatted string
-	Type          string
-	Caption       template.HTML
+	Date    time.Time
+	Type    string
+	Caption template.HTML
 }
 
 type CalendarPerson struct {
@@ -36,10 +34,6 @@ type CalendarAnniversary struct {
 	MarriedDate time.Time
 	Person1     PersonLite
 	Person2     PersonLite
-}
-
-func calendarDateFormatted(date time.Time) string {
-	return date.Format("Jan 2, 2006")
 }
 
 func LoadPeopleCalendar(db *sql.DB) (*PeopleCalendar, error) {
@@ -74,11 +68,9 @@ func LoadPeopleCalendar(db *sql.DB) (*PeopleCalendar, error) {
 			var buf bytes.Buffer
 			personTemplate.Execute(&buf, value)
 			event := CalendarEvent{
-				Day:           value.BirthDate.Day(),
-				Date:          value.BirthDate,
-				DateFormatted: calendarDateFormatted(value.BirthDate),
-				Type:          "Birthday",
-				Caption:       template.HTML(buf.String()),
+				Date:    value.BirthDate,
+				Type:    "Birthday",
+				Caption: template.HTML(buf.String()),
 			}
 			events = append(events, event)
 		}
@@ -87,15 +79,13 @@ func LoadPeopleCalendar(db *sql.DB) (*PeopleCalendar, error) {
 			var buf bytes.Buffer
 			anniversaryTemplate.Execute(&buf, value)
 			event := CalendarEvent{
-				Day:           value.MarriedDate.Day(),
-				Date:          value.MarriedDate,
-				DateFormatted: calendarDateFormatted(value.MarriedDate),
-				Type:          "Anniversary",
-				Caption:       template.HTML(buf.String()),
+				Date:    value.MarriedDate,
+				Type:    "Anniversary",
+				Caption: template.HTML(buf.String()),
 			}
 			events = append(events, event)
 		}
-		sort.Slice(events, func(i, j int) bool { return events[i].Day < events[j].Day })
+		sort.Slice(events, func(i, j int) bool { return events[i].Date.Day() < events[j].Date.Day() })
 		calendar.Months[i].Events = events
 	}
 

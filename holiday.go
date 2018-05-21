@@ -49,16 +49,28 @@ func LoadHolidays(db *sql.DB, startYear int) ([]Holiday, error) {
 	}
 	defer rows.Close()
 
+	return readHolidaysFromRows(rows)
+}
+
+func readHolidaysFromRows(rows *sql.Rows) ([]Holiday, error) {
 	var holidays []Holiday
 	for rows.Next() {
-		var holiday Holiday
-		var holidayDateString string
-		err := rows.Scan(&holiday.Id, &holidayDateString, &holiday.Name)
+		holiday, err := readHolidayFromRows(rows)
 		if err != nil {
 			return nil, err
 		}
-		holiday.Date, _ = time.Parse("2006-01-02", holidayDateString)
-		holidays = append(holidays, holiday)
+		holidays = append(holidays, *holiday)
 	}
 	return holidays, nil
+}
+
+func readHolidayFromRows(rows *sql.Rows) (*Holiday, error) {
+	var holiday Holiday
+	var holidayDateString string
+	err := rows.Scan(&holiday.Id, &holidayDateString, &holiday.Name)
+	if err != nil {
+		return nil, err
+	}
+	holiday.Date, _ = time.Parse("2006-01-02", holidayDateString)
+	return &holiday, nil
 }

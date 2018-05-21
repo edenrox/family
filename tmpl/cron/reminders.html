@@ -11,9 +11,9 @@
     <table class="table table-striped" style="width: 500px;">
       <tbody>
         <tr><td><label for="start_date">Start Date</label></td>
-            <td><input type="text" name="start_date" id="start_date" value="{{.StartDateFormatted}}"></td></tr>
+            <td><input type="text" name="start_date" id="start_date" value="{{.StartDate.Format "2006-01-02"}}"></td></tr>
         <tr><td><label>End Date</label></td>
-            <td>{{.EndDateFormatted}}</td></tr>
+            <td>{{.EndDate.Format "2006-01-02"}}</td></tr>
         <tr><td><label>Options</label></td>
             <td><label class="checkbox"><input type="checkbox" name="send_email" value="1" />Send email</label></td></tr>
         <tr><td></td><td><input type="submit" value="Go" class="btn btn-primary" /></td></tr>
@@ -29,7 +29,7 @@
     <tbody>
       {{range .Events}}
       <tr>
-        <td>{{.DateFormatted}}</td>
+        <td>{{.Date.Format "Jan 2, 2006"}}</td>
         <td>{{.Type}}</td>
         <td>{{.Caption}}</td>
       </tr>

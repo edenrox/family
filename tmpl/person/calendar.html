@@ -17,10 +17,10 @@
         {{range .Events}}
         <tr>
           <td></td>
-          <td>{{.Day}}</td>
+          <td>{{.Date.Day}}</td>
           <td>{{.Caption}}</td>
           <td>{{.Type}}</td>
-          <td>{{.DateFormatted}}</td>
+          <td>{{.Date.Format "Jan 2, 2006"}}</td>
         </tr>
         {{end}}
       {{end}}

@@ -39,16 +39,20 @@ func cronReminders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	holidays, err := loadHolidaysInRange(db, startTime, endTime)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error loading holidays: %v", err), 500)
+		return
+	}
+
 	var events []CalendarEvent
 
 	// Add birthdays to event calendar
 	for _, value := range people {
 		event := CalendarEvent{
-			Day:           value.BirthDate.Day(),
-			Date:          value.BirthDate,
-			DateFormatted: calendarDateFormatted(value.BirthDate),
-			Type:          "Birthday",
-			Caption:       template.HTML(value.Person.Name),
+			Date:    value.BirthDate,
+			Type:    "Birthday",
+			Caption: template.HTML(value.Person.Name),
 		}
 		events = append(events, event)
 	}
@@ -56,26 +60,33 @@ func cronReminders(w http.ResponseWriter, r *http.Request) {
 	// Add anniversaries to event calendar
 	for _, value := range anniversaries {
 		event := CalendarEvent{
-			Day:           value.MarriedDate.Day(),
-			Date:          value.MarriedDate,
-			DateFormatted: calendarDateFormatted(value.MarriedDate),
-			Type:          "Anniversary",
-			Caption:       template.HTML(value.Person1.Name + " &amp; " + value.Person2.Name),
+			Date:    value.MarriedDate,
+			Type:    "Anniversary",
+			Caption: template.HTML(value.Person1.Name + " &amp; " + value.Person2.Name),
+		}
+		events = append(events, event)
+	}
+
+	for _, value := range holidays {
+		event := CalendarEvent{
+			Date:    value.Date,
+			Type:    "Holiday",
+			Caption: template.HTML(value.Name),
 		}
 		events = append(events, event)
 	}
 
 	// sort the event calendar
-	sort.Slice(events, func(i, j int) bool { return events[i].Day < events[j].Day })
+	sort.Slice(events, func(i, j int) bool { return events[i].Date.Day() < events[j].Date.Day() })
 
 	data := struct {
-		Events             []CalendarEvent
-		StartDateFormatted string
-		EndDateFormatted   string
+		Events    []CalendarEvent
+		StartDate time.Time
+		EndDate   time.Time
 	}{
-		Events:             events,
-		StartDateFormatted: startTime.Format("2006-01-02"),
-		EndDateFormatted:   endTime.Format("2006-01-02"),
+		Events:    events,
+		StartDate: startTime,
+		EndDate:   endTime,
 	}
 
 	// Output the result
@@ -83,6 +94,22 @@ func cronReminders(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func loadHolidaysInRange(db *sql.DB, startTime time.Time, endTime time.Time) ([]Holiday, error) {
+	defer trace(traceName(fmt.Sprintf("loadHolidaysInRange(%v, %v)", startTime, endTime)))
+
+	rows, err := db.Query(
+		"SELECT id, date, name"+
+			" FROM holidays"+
+			" WHERE date >= ? AND date <= ?"+
+			" ORDER BY date ASC",
+		startTime.Format("2006-01-02"), endTime.Format("2006-01-02"))
+	if err != nil {
+		return nil, err
+	}
+
+	return readHolidaysFromRows(rows)
 }
 
 func loadAnniversariesInRange(db *sql.DB, startTime time.Time, endTime time.Time) ([]CalendarAnniversary, error) {
