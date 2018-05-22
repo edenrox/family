@@ -1,0 +1,40 @@
+{{define "title"}}Region : Edit{{end}}
+{{define "content"}}
+  <div class="page-header">
+    <h1>Edit {{.Region.Name}}</h1>
+  </div>
+  <ul class="breadcrumb">
+    <li><a href="/region/list">Regions</a> <span class="divider">&raquo;</span></li>
+    <li><a href="/region/view/{{.Region.Id}}">Region</a> <span class="divider">&raquo;</span></li>
+    <li class="active">Edit</li>
+  </ul>
+  <form action="/region/edit/{{.Region.Id}}" method="post">
+    <table class="table table-striped"  style="width: 300px;">
+      <tbody>
+        <tr>
+          <td><label for="name">Name</label></td>
+          <td><input type="text" name="name" value="{{.Region.Name}}" /></td></tr>
+        <tr>
+          <td><label for="code">Code</label></td>
+          <td><input type="text" name="code" value="{{.Region.Code}}" class="input-small" /></td></tr>
+        <tr>
+          <td><label for="country_code">Country</label></td>
+          <td>
+<select name="country_code">
+{{range .Countries}}
+  <option value="{{.Code}}" {{if eq .Code $.Region.CountryCode}}selected="selected"{{end}}>{{.Name}}</option>
+{{end}}
+</select>
+         </td>
+        </tr>
+        <tr>
+         <td></td>
+         <td>
+          <input type="submit" value="Save" class="btn btn-primary" />
+          <a href="/country/list" class="btn btn-danger">Cancel</a>
+         </td>
+        </tr>
+      </tbody>
+    </table>
+  </form>
+{{end}}
