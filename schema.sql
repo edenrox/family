@@ -1,4 +1,4 @@
-CREATE DATABASE IF NOT EXISTS `family`;
+CREATE DATABASE IF NOT EXISTS `family` /*!40100 DEFAULT CHARACTER SET utf8 */;
 
 USE `family`;
 
@@ -11,6 +11,12 @@ CREATE TABLE `cities` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `continents` (
+  `code` varchar(2) NOT NULL,
+  `name` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `countries` (
   `code` char(2) NOT NULL,
   `name` varchar(45) DEFAULT NULL,
@@ -18,6 +24,7 @@ CREATE TABLE `countries` (
   `gdp` int(11) NOT NULL DEFAULT '0',
   `population` int(11) NOT NULL DEFAULT '0',
   `has_region_icons` tinyint(1) NOT NULL DEFAULT '0',
+  `continent_code` varchar(2) DEFAULT NULL,
   PRIMARY KEY (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -26,7 +33,7 @@ CREATE TABLE `holidays` (
   `name` varchar(45) NOT NULL,
   `date` date NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `people` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
