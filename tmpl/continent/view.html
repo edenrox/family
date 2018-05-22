@@ -1,0 +1,40 @@
+{{define "title"}}Continent : {{.Continent.Name}}{{end}}
+{{define "content"}}
+  {{with .Continent}}
+  <div class="page-header">
+    <h1>{{.Name}}</h1>
+  </div>
+  <ul class="breadcrumb">
+    <li><a href="/continent/list">Continents</a> <span class="divider">&raquo;</span></li>
+    <li class="active">{{.Name}}</li>
+  </ul>
+  <table class="table table-striped" style="width: 300px;">
+    <tbody>
+      <tr><td>Code</td><td>{{.Code}}</td></tr>
+      <tr><td>Name</td><td>{{.Name}}</td></tr>
+    </tbody>
+  </table>
+  {{end}}
+  <h2>Countries</h2>
+  <table class="table table-striped" style="width:400px;">
+    <thead>
+      <tr>
+        <th style="width: 32px;">Icon</th>
+        <th>Code</th>
+        <th>Name</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{range .Countries}}
+      <tr>
+        <td style="padding-top: 0px; padding-bottom: 0px;"><img src="/assets/img/flags/country/{{.Code}}.png" style="width: 32px; height: 32px;" /></td>
+        <td>{{.Code}}</td>
+        <td><a href="/country/view/{{.Code}}">{{.Name}}</a></td>
+      </tr>
+      {{end}}
+    </tbody>
+    <tfoot>
+      <tr><td colspan="3"><a href="/country/add" class="btn btn-primary"><i class="icon-plus icon-white"></i> Add a Country</a></td></tr>
+    </tfoot>
+  </table>
+{{end}}

@@ -1,0 +1,21 @@
+{{define "title"}}Continent list{{end}}
+{{define "content"}}
+  <div class="page-header">
+    <h1>Continent list</h1>
+  </div>
+  <ul class="breadcrumb">
+    <li class="active">Continents</li>
+  </ul>
+  <table class="table table-striped" style="width: 300px">
+    <thead>
+      <tr><th>Code</th><th>Name</th></tr>
+    </thead>
+    <tbody>
+      {{range .}}
+      <tr>
+        <td>{{.Code}}</td>
+        <td><a href="/continent/view/{{.Code}}">{{.Name}}</a></td>
+      {{end}}
+    </tbody>
+  </table>
+{{end}}
