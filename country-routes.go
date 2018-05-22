@@ -82,6 +82,7 @@ func countryAdd(w http.ResponseWriter, r *http.Request) {
 			Gdp:            gdp,
 			Population:     population,
 			HasRegionIcons: r.FormValue("has_region_icons") == "1",
+			ContinentCode:  r.FormValue("continent_code"),
 		}
 		if item.Code == "" || item.Name == "" {
 			http.Error(w, "Bad request, empty code or name", 400)
@@ -97,7 +98,19 @@ func countryAdd(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := template.Must(template.ParseFiles("tmpl/layout/main.html", "tmpl/country/add.html")).Execute(w, nil)
+	continents, err := LoadContinentList(db)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error loading continents: %v", err), 500)
+		return
+	}
+
+	data := struct {
+		Continents []Continent
+	}{
+		continents,
+	}
+
+	err = template.Must(template.ParseFiles("tmpl/layout/main.html", "tmpl/country/add.html")).Execute(w, data)
 	if err != nil {
 		panic(err)
 	}
@@ -122,6 +135,7 @@ func countryEdit(w http.ResponseWriter, r *http.Request) {
 			Gdp:            gdp,
 			Population:     population,
 			HasRegionIcons: r.FormValue("has_region_icons") == "1",
+			ContinentCode:  r.FormValue("continent_code"),
 		}
 		if item.Code == "" || item.Name == "" {
 			http.Error(w, "Bad request, empty code or name", 400)
@@ -137,13 +151,26 @@ func countryEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	item, err := LoadCountryByCode(db, originalCode)
+	country, err := LoadCountryByCode(db, originalCode)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error loading country: %v", err), 500)
 		return
 	}
+	continents, err := LoadContinentList(db)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error loading continents: %v", err), 500)
+		return
+	}
 
-	err = template.Must(template.ParseFiles("tmpl/layout/main.html", "tmpl/country/edit.html")).Execute(w, item)
+	data := struct {
+		Continents []Continent
+		Country    *Country
+	}{
+		continents,
+		country,
+	}
+
+	err = template.Must(template.ParseFiles("tmpl/layout/main.html", "tmpl/country/edit.html")).Execute(w, data)
 	if err != nil {
 		panic(err)
 	}

@@ -20,6 +20,15 @@
           <td><input type="text" name="name" /></td>
         </tr>
         <tr>
+            <td><label for="continent_code">Continent</label></td>
+            <td>
+<select name="continent_code">
+{{range $.Continents}}
+<option value="{{.Code}}">{{.Name}}</option>
+{{end}}
+</select></td>
+          </tr>
+        <tr>
           <td><label for="capital_city_name">Capital City</label></td>
           <td><div class="input-append">
             <input type="text" name="capital_city_name" id="capital_city_name" autocomplete="new-password" />

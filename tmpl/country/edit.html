@@ -1,5 +1,6 @@
-{{define "title"}}Country : Edit {{.Name}}{{end}}
+{{define "title"}}Country : Edit {{.Country.Name}}{{end}}
 {{define "content"}}
+{{with .Country}}
   <div class="page-header">
     <h1>Edit {{.Name}}</h1>
   </div>
@@ -9,7 +10,7 @@
     <li class="active">Edit</li>
   </ul>
   <form action="/country/edit/{{.Code}}" method="post">
-    <input type="hidden" name="capital_city_id" value="{{.CapitalCity.Id}}" />
+    <input type="hidden" name="capital_city_id" value="{{if .CapitalCity}}{{.CapitalCity.Id}}{{else}}0{{end}}" />
     <table class="table table-striped" style="width: 400px;">
       <tbody>
         <tr>
@@ -21,9 +22,18 @@
           <td><input type="text" name="name" value="{{.Name}}" /></td>
         </tr>
         <tr>
+            <td><label for="continent_code">Continent</label></td>
+            <td>
+<select name="continent_code">
+{{range $.Continents}}
+<option value="{{.Code}}" {{if eq .Code $.Country.Continent.Code}}selected{{end}}>{{.Name}}</option>
+{{end}}
+</select></td>
+          </tr>
+        <tr>
           <td><label for="capital_city_name">Capital City</label></td>
           <td><div class="input-append">
-            <input type="text" name="capital_city_name" id="capital_city_name" autocomplete="new-password" value="{{.CapitalCity.Name}}" />
+            <input type="text" name="capital_city_name" id="capital_city_name" autocomplete="new-password" value="{{if .CapitalCity}}{{.CapitalCity.Name}}{{end}}" />
             <span class="add-on"><i class="icon-home"></i></span>
           </div></td>
         </tr>
@@ -55,4 +65,5 @@
     cityTypeAhead('capital_city_id', 'capital_city_name');
   });
   </script>
+{{end}}
 {{end}}

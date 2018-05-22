@@ -7,9 +7,9 @@
   <ul class="breadcrumb">
     <li class="active">Countries</li>
   </ul>
-  <table class="table table-striped" style="width: 700px">
+  <table class="table table-striped">
     <thead>
-      <tr><th>Icon</th><th>Code</th><th>Name</th><th>Capital City</th><th>GDP</th><th>Population</th></tr>
+      <tr><th>Icon</th><th>Code</th><th>Name</th><th>Capital City</th><th>GDP</th><th>Population</th><th>Continent</th></tr>
     </thead>
     <tbody>
       {{range .}}
@@ -23,7 +23,9 @@
         <td>-</td>
         {{end}}
         <td style="text-align: right;">{{.GdpFormatted}}</td>
-        <td style="text-align: right;">{{.PopulationFormatted}}</td></tr>
+        <td style="text-align: right;">{{.PopulationFormatted}}</td>
+        <td><a href="/continent/view/{{.Continent.Code}}">{{.Continent.Name}}</a></td>
+      </tr>
       {{end}}
     </tbody>
   </table>

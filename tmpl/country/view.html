@@ -13,8 +13,9 @@
       <tr><td>Icon</td><td style="padding-top: 0px; padding-bottom: 0px;"><img src="/assets/img/flags/country/{{.Code}}.png" style="width: 32px; height: 32px;" /></td></tr>
       <tr><td>Code</td><td>{{.Code}}</td></tr>
       <tr><td>Name</td><td>{{.Name}}</td></tr>
-      <tr><td>Gdp</td><td>{{.Gdp}}</td></tr>
-      <tr><td>Population</td><td>{{.Population}}</td></tr>
+      <tr><td>Continent</td><td><a href="/continent/view/{{.Continent.Code}}">{{.Continent.Name}}</a></td></tr>
+      <tr><td>Gdp</td><td>{{.GdpFormatted}}</td></tr>
+      <tr><td>Population</td><td>{{.PopulationFormatted}}</td></tr>
       {{if .CapitalCity}}
       <tr><td>Capital City</td><td><a href="/city/view/{{.CapitalCity.Id}}">{{.CapitalCity.Name}}, {{.CapitalCity.RegionAbbr}}</a></td></tr>
       {{end}}
