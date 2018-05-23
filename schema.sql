@@ -14,6 +14,10 @@ CREATE TABLE `cities` (
 CREATE TABLE `continents` (
   `code` varchar(2) NOT NULL,
   `name` varchar(45) DEFAULT NULL,
+  `map_lat` decimal(10,8) NOT NULL DEFAULT '0.00000000',
+  `map_lng` decimal(11,8) NOT NULL DEFAULT '0.00000000',
+  `map_zoom` int(11) NOT NULL DEFAULT '0',
+  `color` varchar(6) NOT NULL DEFAULT '',
   PRIMARY KEY (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
