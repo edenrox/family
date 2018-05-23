@@ -38,10 +38,10 @@ func continentView(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := struct {
-		Continent Continent
+		Continent *ContinentWithMap
 		Countries []Country
 	}{
-		*continent,
+		continent,
 		countries,
 	}
 

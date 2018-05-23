@@ -36,6 +36,20 @@ func (c *CityLite) FormatLocation() string {
 	return fmt.Sprintf("%.3f %s, %.3f %s", math.Abs(c.Latitude), latDir, math.Abs(c.Longitude), longDir)
 }
 
+func (c *CityLite) MapUrl() string {
+	return fmt.Sprintf(
+		"https://maps.googleapis.com/maps/api/staticmap"+
+			"?center=%.4f,%.4f"+
+			"&zoom=5"+
+			"&size=500x300"+
+			"&maptype=roadmap"+
+			"&markers=color:blue|%.4f,%.4f"+
+			"&key=%s",
+		c.Latitude, c.Longitude,
+		c.Latitude, c.Longitude,
+		config.mapsApiKey)
+}
+
 func readCityListFromRows(rows *sql.Rows) ([]CityLite, error) {
 	var cities []CityLite
 	for rows.Next() {

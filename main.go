@@ -10,6 +10,11 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+var config struct {
+	databaseConnectionString string
+	mapsApiKey               string
+}
+
 // Connection to the MySQL database
 var db *sql.DB
 
@@ -17,15 +22,19 @@ func health(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "OK")
 }
 
-func main() {
-	// Connect to the MySQL database
-	dsn := flag.String("database", "", "dsn for connecting to a mysql database")
-
+func loadFlags() {
+	flag.StringVar(&config.databaseConnectionString, "database", "", "dsn for connecting to a mysql database")
+	flag.StringVar(&config.mapsApiKey, "mapsApiKey", "", "API Key for connecting to Google Static Maps API")
 	flag.Parse()
+}
 
-	fmt.Printf("Connecting to database: %s\n", *dsn)
+func main() {
+	loadFlags()
+
+	// Connect to the MySQL database
+	fmt.Printf("Connecting to database: %s\n", config.databaseConnectionString)
 	var err error
-	db, err = sql.Open("mysql", *dsn)
+	db, err = sql.Open("mysql", config.databaseConnectionString)
 	if err != nil {
 		panic(err)
 	}
