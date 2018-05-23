@@ -6,15 +6,17 @@
   <ul class="breadcrumb">
     <li class="active">Continents</li>
   </ul>
+  <img src="/assets/img/continents/all.png" style="width: 500px; height: 250px; float: right;"/>
   <table class="table table-striped" style="width: 300px">
     <thead>
-      <tr><th>Code</th><th>Name</th></tr>
+      <tr><th>Code</th><th>Name</th><th>Color</th></tr>
     </thead>
     <tbody>
       {{range .}}
       <tr>
         <td>{{.Code}}</td>
         <td><a href="/continent/view/{{.Code}}">{{.Name}}</a></td>
+        <td><div style="display: block; width: 32px; height: 20px; background-color: #{{.Color}};"></div></td>
       {{end}}
     </tbody>
   </table>
