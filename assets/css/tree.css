@@ -1,0 +1,23 @@
+.tree span {
+    border: 2px solid #F0F0F0;
+    border-radius: 6px;
+    text-align: center;
+}
+.tree span a {
+    display: block;
+    min-height: 40px;
+}
+.tree span span {
+    font-size: 12px;
+}
+.row-title {
+    color: #999;
+    text-align: left;
+    padding-left: 4px;
+}
+.tree .Female {
+    border-color: #F48FB1;
+}
+.tree .Male {
+    border-color: #90CAF9;
+}
