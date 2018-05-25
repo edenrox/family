@@ -188,9 +188,10 @@ func LoadPersonById(db *sql.DB, id int) (*Person, error) {
 
 func LoadPersonLiteList(db *sql.DB) ([]PersonLite, error) {
 	defer trace(traceName("LoadPersonLiteList"))
-	rows, err := db.Query("SELECT id, first_name, middle_name, last_name, nick_name, gender, mother_id, father_id" +
-		" FROM people" +
-		" ORDER BY last_name, first_name, middle_name")
+	rows, err := db.Query(
+		"SELECT id, first_name, middle_name, last_name, nick_name, gender, mother_id, father_id" +
+			" FROM people" +
+			" ORDER BY last_name, first_name, middle_name")
 	if err != nil {
 		return nil, err
 	}
@@ -201,10 +202,12 @@ func LoadPersonLiteList(db *sql.DB) ([]PersonLite, error) {
 
 func LoadPersonLiteListByHomeCityId(db *sql.DB, cityId int) ([]PersonLite, error) {
 	defer trace(traceName(fmt.Sprintf("LoadPersonLiteListByCity(%d)", cityId)))
-	rows, err := db.Query("SELECT id, first_name, middle_name, last_name, nick_name, gender, mother_id, father_id"+
-		" FROM people"+
-		" WHERE home_city_id=?"+
-		" ORDER BY last_name, first_name, middle_name", cityId)
+	rows, err := db.Query(
+		"SELECT id, first_name, middle_name, last_name, nick_name, gender, mother_id, father_id"+
+			" FROM people"+
+			" WHERE home_city_id=?"+
+			" ORDER BY last_name, first_name, middle_name",
+		cityId)
 	if err != nil {
 		return nil, err
 	}
@@ -215,9 +218,12 @@ func LoadPersonLiteListByHomeCityId(db *sql.DB, cityId int) ([]PersonLite, error
 
 func LoadChildrenPersonLite(db *sql.DB, personId int) ([]PersonLite, error) {
 	defer trace(traceName(fmt.Sprintf("LoadChildrenPersonLite(%d)", personId)))
-	rows, err := db.Query("SELECT id, first_name, middle_name, last_name, nick_name, gender, mother_id, father_id"+
-		" FROM people "+
-		" WHERE father_id = ? OR mother_id = ?", personId, personId)
+	rows, err := db.Query(
+		"SELECT id, first_name, middle_name, last_name, nick_name, gender, mother_id, father_id"+
+			" FROM people "+
+			" WHERE father_id = ? OR mother_id = ?"+
+			" ORDER BY birth_date ASC",
+		personId, personId)
 	if err != nil {
 		return nil, err
 	}
@@ -232,9 +238,12 @@ func LoadSiblingsPersonLite(db *sql.DB, personId int) ([]PersonLite, error) {
 	var fatherId, motherId int
 	row.Scan(&fatherId, &motherId)
 
-	rows, err := db.Query("SELECT id, first_name, middle_name, last_name, nick_name, gender, mother_id, father_id"+
-		" FROM people"+
-		" WHERE father_id=? AND mother_id=? AND id!=?", fatherId, motherId, personId)
+	rows, err := db.Query(
+		"SELECT id, first_name, middle_name, last_name, nick_name, gender, mother_id, father_id"+
+			" FROM people"+
+			" WHERE father_id=? AND mother_id=? AND id!=?"+
+			" ORDER BY birth_date ASC",
+		fatherId, motherId, personId)
 	if err != nil {
 		return nil, err
 	}
@@ -307,6 +316,28 @@ func InsertPerson(db *sql.DB, data PersonData) (int, error) {
 	}
 	personId, err := res.LastInsertId()
 	return int(personId), err
+}
+
+func UpdatePerson(db *sql.DB, personId int, data PersonData) error {
+	defer trace(traceName(fmt.Sprintf("UpdatePerson(%d, %v)", personId, data)))
+
+	_, err := db.Exec(
+		"UPDATE people"+
+			" SET first_name=?, middle_name=?, last_name=?, nick_name=?,"+
+			" mother_id=?, father_id=?, birth_date=?, is_birth_year_guess=?, is_alive=?,"+
+			" home_city_id=?, birth_city_id=?, gender=?"+
+			" WHERE id=?",
+		data.FirstName, data.MiddleName, data.LastName, data.NickName,
+		getNullableInt(data.MotherId), getNullableInt(data.FatherId), getNullableString(data.BirthDate), data.IsBirthYearGuess, data.IsAlive,
+		getNullableInt(data.HomeCityId), getNullableInt(data.BirthCityId), data.Gender,
+		personId)
+	return err
+}
+
+func DeletePerson(db *sql.DB, personId int) error {
+	defer trace(traceName(fmt.Sprintf("DeletePerson(%d)", personId)))
+	_, err := db.Exec("DELETE from people WHERE id = ?", personId)
+	return err
 }
 
 func getNullableInt(value int) sql.NullInt64 {
