@@ -1,0 +1,108 @@
+{{define "title"}}People : Add{{end}}
+{{define "content"}}
+  <div class="page-header">
+    <h1>Edit a person</h1>
+  </div>
+  <ul class="breadcrumb">
+    <li><a href="/person/list">People</a> <span class="divider">&raquo;</span></li>
+    <li class="active">Edit</li>
+  </ul>
+  <form action="/person/edit/{{.Id}}" method="post" autocomplete="off">
+    <input type="hidden" name="birth_city_id" id="birth_city_id" value="{{if .BirthCity}}{{.BirthCity.Id}}{{end}}"/>
+    <input type="hidden" name="home_city_id" id="home_city_id" value="{{if .HomeCity}}{{.HomeCity.Id}}{{end}}"/>
+    <input type="hidden" name="mother_id" id="mother_id" value="{{if .Mother}}{{.Mother.Id}}{{end}}"/>
+    <input type="hidden" name="father_id" id="father_id" value="{{if .Father}}{{.Father.Id}}{{end}}"/>
+    <table class="table table-striped" style="width: 500px;">
+      <tbody>
+        <tr><th colspan="2">Name</th></tr>
+        <tr>
+          <td><label for="first_name">First</label></td>
+          <td><input type="text" name="first_name" value="{{.FirstName}}"/></td>
+        </tr>
+        <tr>
+          <td><label for="middle_name">Middle</label></td>
+          <td><input type="text" name="middle_name" value="{{.MiddleName}}"/></td>
+        </tr>
+        <tr>
+          <td><label for="last_name">Last</label></td>
+          <td><input type="text" name="last_name" value="{{.LastName}}"/></td>
+        </tr>
+        <tr>
+          <td><label for="nick_name">Nick</label></td>
+          <td><input type="text" name="nick_name" value="{{.NickName}}"/></td>
+        </tr>
+        <tr>
+          <th colspan="2">Birth</th>
+        </tr>
+        <tr>
+          <td><label for="gender">Gender</label></td>
+          <td>
+            <label class="radio inline"><input type="radio" name="gender" value="male" {{if eq .Gender "Male"}}checked{{end}}/> Male</label>
+            <label class="radio inline"><input type="radio" name="gender" value="female" {{if eq .Gender "Female"}}checked{{end}}/> Female</label>
+          </td>
+        </tr>
+        <tr>
+          <td><label for="birth_date">Birth date</label></td>
+          <td><input type="text" name="birth_date" placeholder="YYYY-MM-DD" value="{{if .HasBirthDate}}{{.BirthDate.Format "2006-01-02"}}{{end}}" /></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><label class="checkbox"><input type="checkbox" name="is_birth_year_guess" value="1" {{if .IsBirthYearGuess}}checked{{end}} />Is birth year estimate?</label></td></tr>
+        <tr>
+          <td></td>
+          <td><label class="checkbox"><input type="checkbox" name="is_alive" value="1" {{if .IsAlive}}checked{{end}} />Is alive</label></td>
+        </tr>
+        <tr>
+          <td><label for="birth_city_name">City</label></td>
+          <td><div class="input-append">
+            <input type="text" name="birth_city_name" id="birth_city_name" autocomplete="new-password" value="{{if .BirthCity}}{{.BirthCity.Name}}{{end}}" />
+            <span class="add-on"><i class="icon-home"></i></span>
+          </div></td>
+        </tr>
+        <tr>
+          <th colspan="2">Home</th>
+        </tr>
+        <tr>
+          <td><label for="home_city_name">City</label></td>
+          <td><div class="input-append">
+            <input type="text" name="home_city_name" id="home_city_name" autocomplete="new-password" value="{{if .HomeCity}}{{.HomeCity.Name}}{{end}}"/>
+            <span class="add-on"><i class="icon-home"></i></span>
+          </div></td></tr>
+        <tr>
+          <th colspan="2">Relationships</th>
+        </tr>
+        <tr>
+          <td><label for="mother_name">Mother</label></td>
+          <td><div class="input-append">
+            <input type="text" name="mother_name" id="mother_name" autocomplete="new-password" value="{{if .Mother}}{{.Mother.Name}}{{end}}" />
+            <span class="add-on"><i class="icon-user"></i></span>
+          </div></td>
+        </tr>
+        <tr>
+          <td><label for="father_name">Father</label></td>
+          <td><div class="input-append">
+            <input type="text" name="father_name" id="father_name" autocomplete="new-password" value="{{if .Father}}{{.Father.Name}}{{end}}" />
+            <span class="add-on"><i class="icon-user"></i></span>
+          </div></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>
+            <input type="submit" value="Save" class="btn btn-primary" />
+            <a href="/person/list" class="btn btn-danger">Cancel</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </form>
+  <div style="width: 400px; height: 300px;"></div>
+  <script type="text/javascript" src="/assets/js/typeahead.js"></script>
+  <script type="text/javascript">
+  $(function() {
+    cityTypeAhead('birth_city_id', 'birth_city_name');
+    cityTypeAhead('home_city_id', 'home_city_name');
+    personTypeAhead('mother_id', 'mother_name');
+    personTypeAhead('father_id', 'father_name');
+  });
+  </script>
+{{end}}

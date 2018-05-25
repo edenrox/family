@@ -1,12 +1,10 @@
-{{define "title"}}{{.FullName}}{{end}}
+{{define "title"}}{{.Person.FullName}}{{end}}
 {{define "content"}}
   <div class="page-header">
-    <h1>{{.FullName}}</h1>
+    <h1>{{.Person.FullName}}</h1>
   </div>
-  <ul class="breadcrumb">
-    <li><a href="/person/list">People</a> <span class="divider">&raquo;</span></li>
-    <li class="active">{{.FullName}}</li>
-  </ul>
+  {{template "tree" .}}
+  {{with .Person}}
   <table class="table table-striped" style="width: 500px;">
     <tbody>
       <tr><td colspan="2"><strong>Name</strong></td></tr>
@@ -82,5 +80,6 @@
       </tr>
     </tbody>
   </table>
+  {{end}}
   <p><a href="/person/list" class="btn btn-primary">&laquo; People list</a></p>
 {{end}}
