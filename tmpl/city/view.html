@@ -11,8 +11,7 @@
     <li class="active">{{.Name}}</li>
   </ul>
   {{if .Latitude}}
-  <img style="width: 500px; height: 300px; float: right;" src="https://maps.googleapis.com/maps/api/staticmap?center={{.Latitude}},{{.Longitude}}&amp;zoom=5&amp;size=500x300&amp;maptype=roadmap
-  &amp;markers=color:blue%7C{{.Latitude}},{{.Longitude}}&amp;key=AIzaSyB6r7NRfDGAu2RLJ3W-RyvteT1uirirUxU" />
+  <img style="width: 500px; height: 300px; float: right;" src="{{.MapUrl}}" />
   {{end}}
   <h2>City Details</h2>
   <table class="table table-striped" style="width: 300px;">
