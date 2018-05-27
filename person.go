@@ -8,11 +8,12 @@ import (
 )
 
 type PersonLite struct {
-	Id       int
-	Name     string
-	Gender   string
-	MotherId int
-	FatherId int
+	Id         int
+	Name       string
+	Gender     string
+	MotherId   int
+	FatherId   int
+	IsFavorite bool
 }
 
 type Person struct {
@@ -27,6 +28,7 @@ type Person struct {
 	BirthDate        time.Time
 	BirthCity        *CityLite
 	IsBirthYearGuess bool
+	IsFavorite       bool
 	HomeCity         *CityLite
 	Mother           *PersonLite
 	Father           *PersonLite
@@ -94,9 +96,10 @@ func (p *Person) Age() int {
 
 func LoadPersonLiteById(db *sql.DB, id int) (*PersonLite, error) {
 	defer trace(traceName(fmt.Sprintf("LoadPersonLiteById(%d)", id)))
-	rows, err := db.Query("SELECT id, first_name, middle_name, last_name, nick_name, gender, mother_id, father_id"+
-		" FROM people"+
-		" WHERE id=?", id)
+	rows, err := db.Query(
+		"SELECT id, first_name, middle_name, last_name, nick_name, gender, mother_id, father_id, 0"+
+			" FROM people"+
+			" WHERE id=?", id)
 	if err != nil {
 		return nil, err
 	}
@@ -123,11 +126,14 @@ func GetGenderName(gender string) string {
 func LoadPersonById(db *sql.DB, id int) (*Person, error) {
 	defer trace(traceName(fmt.Sprintf("LoadPersonById(%d)", id)))
 	rows, err := db.Query(
-		"SELECT id, first_name, middle_name, last_name,"+
-			" nick_name, mother_id, father_id, birth_date,"+
-			" is_birth_year_guess, is_alive, home_city_id, birth_city_id,"+
-			" gender"+
-			" FROM people WHERE id=?", id)
+		"SELECT p.id, p.first_name, p.middle_name, p.last_name,"+
+			" p.nick_name, p.mother_id, p.father_id, p.birth_date,"+
+			" p.is_birth_year_guess, p.is_alive, p.home_city_id, p.birth_city_id,"+
+			" p.gender, NOT ISNULL(f.user_id) AS is_favorite"+
+			" FROM people p"+
+			" LEFT JOIN favorite_people f ON f.person_id = p.id AND f.user_id = 1"+
+			" WHERE p.id=?",
+		id)
 	if err != nil {
 		return nil, err
 	}
@@ -144,7 +150,7 @@ func LoadPersonById(db *sql.DB, id int) (*Person, error) {
 		&item.Id, &item.FirstName, &item.MiddleName, &item.LastName,
 		&item.NickName, &motherId, &fatherId, &birthDateString,
 		&item.IsBirthYearGuess, &item.IsAlive, &homeCityId, &birthCityId,
-		&gender)
+		&gender, &item.IsFavorite)
 	rows.Close()
 	if err != nil {
 		return nil, err
@@ -189,7 +195,7 @@ func LoadPersonById(db *sql.DB, id int) (*Person, error) {
 func LoadPersonLiteList(db *sql.DB) ([]PersonLite, error) {
 	defer trace(traceName("LoadPersonLiteList"))
 	rows, err := db.Query(
-		"SELECT id, first_name, middle_name, last_name, nick_name, gender, mother_id, father_id" +
+		"SELECT id, first_name, middle_name, last_name, nick_name, gender, mother_id, father_id, 0" +
 			" FROM people" +
 			" ORDER BY last_name, first_name, middle_name")
 	if err != nil {
@@ -203,7 +209,7 @@ func LoadPersonLiteList(db *sql.DB) ([]PersonLite, error) {
 func LoadPersonLiteListByHomeCityId(db *sql.DB, cityId int) ([]PersonLite, error) {
 	defer trace(traceName(fmt.Sprintf("LoadPersonLiteListByCity(%d)", cityId)))
 	rows, err := db.Query(
-		"SELECT id, first_name, middle_name, last_name, nick_name, gender, mother_id, father_id"+
+		"SELECT id, first_name, middle_name, last_name, nick_name, gender, mother_id, father_id, 0"+
 			" FROM people"+
 			" WHERE home_city_id=?"+
 			" ORDER BY last_name, first_name, middle_name",
@@ -219,7 +225,7 @@ func LoadPersonLiteListByHomeCityId(db *sql.DB, cityId int) ([]PersonLite, error
 func LoadChildrenPersonLite(db *sql.DB, personId int) ([]PersonLite, error) {
 	defer trace(traceName(fmt.Sprintf("LoadChildrenPersonLite(%d)", personId)))
 	rows, err := db.Query(
-		"SELECT id, first_name, middle_name, last_name, nick_name, gender, mother_id, father_id"+
+		"SELECT id, first_name, middle_name, last_name, nick_name, gender, mother_id, father_id, 0"+
 			" FROM people "+
 			" WHERE father_id = ? OR mother_id = ?"+
 			" ORDER BY birth_date ASC",
@@ -239,7 +245,7 @@ func LoadSiblingsPersonLite(db *sql.DB, personId int) ([]PersonLite, error) {
 	row.Scan(&fatherId, &motherId)
 
 	rows, err := db.Query(
-		"SELECT id, first_name, middle_name, last_name, nick_name, gender, mother_id, father_id"+
+		"SELECT id, first_name, middle_name, last_name, nick_name, gender, mother_id, father_id, 0"+
 			" FROM people"+
 			" WHERE father_id=? AND mother_id=? AND id!=?"+
 			" ORDER BY birth_date ASC",
@@ -252,12 +258,18 @@ func LoadSiblingsPersonLite(db *sql.DB, personId int) ([]PersonLite, error) {
 	return readPersonLiteListFromRows(rows)
 }
 
-func LoadPersonLiteListByNamePrefix(db *sql.DB, prefix string, offset int) ([]PersonLite, error) {
-	defer trace(traceName(fmt.Sprintf("LoadPersonLiteListByNamePrefix(%s)", prefix)))
+func LoadPersonLiteListByNamePrefix(db *sql.DB, prefix string, offset int, favoritesOnly bool) ([]PersonLite, error) {
+	defer trace(traceName(fmt.Sprintf("LoadPersonLiteListByNamePrefix(%+v, %+v, %+v)", prefix, offset, favoritesOnly)))
+	favoritesClause := ""
+	if favoritesOnly {
+		favoritesClause = " AND f.user_id IS NOT NULL"
+	}
 	rows, err := db.Query(
-		"SELECT id, first_name, middle_name, last_name, nick_name, gender, mother_id, father_id"+
-			" FROM people"+
-			" WHERE first_name LIKE CONCAT(?, '%') OR last_name LIKE CONCAT(?, '%')"+
+		"SELECT p.id, p.first_name, p.middle_name, p.last_name, p.nick_name, p.gender, p.mother_id, p.father_id, NOT ISNULL(f.user_id) AS is_favorite"+
+			" FROM people p"+
+			" LEFT JOIN favorite_people f ON f.person_id = p.id AND f.user_id = 1"+
+			" WHERE (first_name LIKE CONCAT(?, '%') OR last_name LIKE CONCAT(?, '%'))"+
+			favoritesClause+
 			" ORDER BY last_name, first_name"+
 			" LIMIT ?, 10", prefix, prefix, offset)
 	if err != nil {
@@ -281,15 +293,13 @@ func readPersonLiteListFromRows(rows *sql.Rows) ([]PersonLite, error) {
 }
 
 func readPersonLiteFromRows(rows *sql.Rows) (*PersonLite, error) {
-	var id int
+	var item PersonLite
 	var motherId, fatherId sql.NullInt64
 	var firstName, middleName, lastName, nickName, gender string
-	rows.Scan(&id, &firstName, &middleName, &lastName, &nickName, &gender, &motherId, &fatherId)
-	item := PersonLite{
-		Id:     id,
-		Name:   BuildFullName(firstName, middleName, lastName, nickName),
-		Gender: GetGenderName(gender),
-	}
+	rows.Scan(&item.Id, &firstName, &middleName, &lastName, &nickName, &gender, &motherId, &fatherId, &item.IsFavorite)
+
+	item.Name = BuildFullName(firstName, middleName, lastName, nickName)
+	item.Gender = GetGenderName(gender)
 	if motherId.Valid {
 		item.MotherId = int(motherId.Int64)
 	}

@@ -190,7 +190,8 @@ func personJsonSearch(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		offset = 0
 	}
-	people, err := LoadPersonLiteListByNamePrefix(db, prefix, offset)
+	favoritesOnly := r.FormValue("favorites_only") == "1"
+	people, err := LoadPersonLiteListByNamePrefix(db, prefix, offset, favoritesOnly)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error loading people: %v", err), 500)
 		return
