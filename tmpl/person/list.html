@@ -20,6 +20,7 @@
           </th>
         </tr>
         <tr>
+          <th style="width: 25px"></th>
           <th style="width: 50px">Id</th>
           <th style="width: 750px">Name</th>
           <th style="width: 100px">Gender</th>
@@ -46,7 +47,7 @@
     });
     $('#next_button').click(function() {
       offset += 10;
-      executeSearch();
+      executeSearch(false);
       return false;
     });
     $('#previous_button').click(function() {
@@ -57,33 +58,67 @@
       if (offset < 0) {
         offset = 0;
       }
-      executeSearch();
+      executeSearch(false);
       return false;
     });
 
     // Do an initial search on page load
-    executeSearch()
+    executeSearch(true)
   });
 
   function searchChange() {
     offset = 0;
-    executeSearch();
+    executeSearch(false);
   }
 
-  function executeSearch() {
+  function toggleFavorite(row) {
+    var personId = row.attr("person-id");
+    var star = row.find('a.favorite i')
+    if (star.hasClass('icon-star')) {
+      $.post({
+        url: '/favorite/delete?person_id=' + personId,
+        success: function(data) {
+          star.addClass('icon-star-empty').removeClass('icon-star');
+        }});
+    } else {
+      $.post({
+        url: '/favorite/add?person_id=' + personId,
+        success: function(data) {
+          star.addClass('icon-star').removeClass('icon-star-empty');
+        }});
+    }
+  }
+
+  function executeSearch(favoritesOnly) {
     var prefix = $('#prefix').val();
     var results = $('#search_results');
+    var url = '/person/json/search';
+    url += '?prefix=' + encodeURIComponent(prefix);
+    url += '&offset=' + encodeURIComponent(offset);
+    if (favoritesOnly) {
+      url += '&favorites_only=1';
+    }
+
     results.empty();
     $.get({
-      url: '/person/json/search?prefix=' + encodeURIComponent(prefix) + '&offset=' + encodeURIComponent(offset),
+      url: url,
       dataType: 'json',
       success: function(data) {
+        var html = '';
         $.each(data, function(index, person) {
-          results.append(
-            '<tr><td>' + person.Id + '</td>'+
+          var starClass = person.IsFavorite ? 'icon-star' : 'icon-star-empty'
+          html +=
+            '<tr person-id="' + person.Id + '">'+
+            '<td><a href="#" class="favorite"><i class="' + starClass + '"></i></a></td>'+
+            '<td>' + person.Id + '</td>'+
             '<td><b><a href="/person/view/' + person.Id + '">' + person.Name + '</a></b></td>'+
             '<td>' + person.Gender + '</td>'+
-            '</tr>');
+            '</tr>';
+        });
+        results.append(html);
+        results.find('a.favorite').click(function() {
+          toggleFavorite($(this).parents('tr'));
+          return false;
         });
         if (data == null) {
           $('#showing').html('No results');
