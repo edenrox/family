@@ -13,6 +13,8 @@ import (
 var config struct {
 	databaseConnectionString string
 	mapsApiKey               string
+	awsAccessKey             string
+	awsSecret                string
 }
 
 // Connection to the MySQL database
@@ -25,6 +27,8 @@ func health(w http.ResponseWriter, r *http.Request) {
 func loadFlags() {
 	flag.StringVar(&config.databaseConnectionString, "database", "", "dsn for connecting to a mysql database")
 	flag.StringVar(&config.mapsApiKey, "mapsApiKey", "", "API Key for connecting to Google Static Maps API")
+	flag.StringVar(&config.awsAccessKey, "awsAccessKey", "", "API Key for connecting to Amazon AWS")
+	flag.StringVar(&config.awsSecret, "awsSecret", "", "Secret Key for connecting to Amazon AWS")
 	flag.Parse()
 }
 
@@ -50,9 +54,7 @@ func main() {
 	addCityRoutes()
 	addPersonRoutes()
 	addSpouseRoutes()
-	addCronRoutes()
 	addHolidayRoutes()
-	addContinentRoutes()
 
 	http.ListenAndServe(":8090", nil)
 }

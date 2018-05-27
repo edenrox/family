@@ -77,7 +77,17 @@ func cronReminders(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// sort the event calendar
-	sort.Slice(events, func(i, j int) bool { return events[i].Date.Day() < events[j].Date.Day() })
+	sort.Slice(
+		events,
+		func(i, j int) bool {
+			monthI := events[i].Date.Month()
+			monthJ := events[j].Date.Month()
+			if monthI == monthJ {
+				return events[i].Date.Day() < events[j].Date.Day()
+			} else {
+				return monthI < monthJ
+			}
+		})
 
 	data := struct {
 		Events    []CalendarEvent
@@ -87,6 +97,10 @@ func cronReminders(w http.ResponseWriter, r *http.Request) {
 		Events:    events,
 		StartDate: startTime,
 		EndDate:   endTime,
+	}
+
+	if r.FormValue("send_email") == "1" {
+		SendReminderEmail(startTime, events)
 	}
 
 	// Output the result
@@ -123,11 +137,11 @@ func loadAnniversariesInRange(db *sql.DB, startTime time.Time, endTime time.Time
 			" INNER JOIN people p1 ON p1.id = s.person1_id"+
 			" INNER JOIN people p2 ON p2.id = s.person2_id"+
 			" WHERE s.status = 1 AND s.married_date IS NOT NULL"+
-			" AND MONTH(s.married_date) >= ? AND DAY(s.married_date) >= ?"+
-			" AND MONTH(s.married_date) <= ? AND DAY(s.married_date) < ?"+
+			" AND DATE_FORMAT(s.married_date, '%m-%d') >= ?"+
+			" AND DATE_FORMAT(s.married_date, '%m-%d') < ?"+
 			" ORDER BY MONTH(s.married_date), DAY(s.married_date)",
-		startTime.Month(), startTime.Day(),
-		endTime.Month(), endTime.Day())
+		startTime.Format("01-02"),
+		endTime.Format("01-02"))
 	if err != nil {
 		return nil, err
 	}
@@ -176,11 +190,11 @@ func loadPeopleWithBirthday(db *sql.DB, startTime time.Time, endTime time.Time) 
 		"SELECT id, first_name, middle_name, last_name, nick_name, gender, birth_date"+
 			" FROM people"+
 			" WHERE is_alive = 1 AND birth_date IS NOT NULL"+
-			" AND MONTH(birth_date) >= ? AND DAY(birth_date) >= ?"+
-			" AND MONTH(birth_date) <= ? AND DAY(birth_date) < ?"+
+			" AND DATE_FORMAT(birth_date, '%m-%d') >= ?"+
+			" AND DATE_FORMAT(birth_date, '%m-%d') < ?"+
 			" ORDER BY MONTH(birth_date), DAY(birth_date)",
-		startTime.Month(), startTime.Day(),
-		endTime.Month(), endTime.Day())
+		startTime.Format("01-02"),
+		endTime.Format("01-02"))
 	if err != nil {
 		return nil, err
 	}
@@ -212,6 +226,6 @@ func loadPeopleWithBirthday(db *sql.DB, startTime time.Time, endTime time.Time) 
 	return people, nil
 }
 
-func addCronRoutes() {
+func init() {
 	http.HandleFunc("/cron/reminders", cronReminders)
 }

@@ -51,7 +51,7 @@ func continentView(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func addContinentRoutes() {
+func init() {
 	http.HandleFunc("/continent/list", continentList)
 	http.HandleFunc("/continent/view/", continentView)
 }
