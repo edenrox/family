@@ -1,0 +1,13 @@
+<p>Hi {{.Name}},</p>
+
+<p>Upcoming events:</p>
+<ul>
+{{range .Events}}
+  <li><b>{{.Date.Format "Mon, Jan 2, 2006"}}</b> - {{.Type}}<br/>
+    {{.Caption}}</li>
+{{end}}
+</ul>
+
+<p>Link:<br/>
+<a href="https://family.icadev.com/cron/reminders">https://family.icadev.com/cron/reminders</a>
+</p>

@@ -1,0 +1,11 @@
+Hi {{.Name}},
+
+Date: {{.StartDate.Format "Mon, Jan 2, 2006"}}
+
+Upcoming events:
+{{range .Events}}
+- {{.Date.Format "Mon, Jan 2, 2006"}} - {{.Type}} - {{.Caption}}
+{{end}}
+
+Link:
+https://family.icadev.com/cron/reminders
