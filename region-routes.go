@@ -194,7 +194,7 @@ func regionDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, fmt.Sprintf("/country/view/%d", region.CountryCode), 302)
+	http.Redirect(w, r, fmt.Sprintf("/country/view/%s", region.CountryCode), 302)
 }
 
 func addRegionRoutes() {
