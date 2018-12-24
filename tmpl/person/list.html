@@ -73,15 +73,16 @@
   function toggleFavorite(row) {
     var personId = row.attr("person-id");
     var star = row.find('a.favorite i')
-    if (star.hasClass('icon-star')) {
+    var isFavorite = star.hasClass('icon-star');
+    if (isFavorite) {
       $.post({
-        url: '/tag/json/add_person?label=favorite&person_id=' + personId,
+        url: '/tag/json/delete?label=favorites&person_id=' + personId,
         success: function(data) {
           star.addClass('icon-star-empty').removeClass('icon-star');
         }});
     } else {
       $.post({
-        url: '/tag/json/delete_person?label=favorite&person_id=' + personId,
+        url: '/tag/json/add?label=favorites&person_id=' + personId,
         success: function(data) {
           star.addClass('icon-star').removeClass('icon-star-empty');
         }});

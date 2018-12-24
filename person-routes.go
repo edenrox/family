@@ -148,14 +148,18 @@ func personView(w http.ResponseWriter, r *http.Request) {
 		maternalGrandParents.GrandFather, _ = LoadPersonLiteOrNull(db, person.Mother.FatherId)
 	}
 
+	tags, err := LoadTagsForPerson(db, person.Id)
+
 	data := struct {
 		Person               *Person
 		PaternalGrandParents GrandParents
 		MaternalGrandParents GrandParents
+		Tags                 []Tag
 	}{
 		person,
 		paternalGrandParents,
 		maternalGrandParents,
+		tags,
 	}
 
 	err = template.Must(template.ParseFiles("tmpl/layout/main.html", "tmpl/person/view.html", "tmpl/person/tree.html")).Execute(w, data)
@@ -190,8 +194,7 @@ func personJsonSearch(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		offset = 0
 	}
-	favoritesOnly := r.FormValue("favorites_only") == "1"
-	people, err := LoadPersonLiteListByNamePrefix(db, prefix, offset, favoritesOnly)
+	people, err := LoadPersonLiteListByNamePrefix(db, prefix, offset)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error loading people: %v", err), 500)
 		return

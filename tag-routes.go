@@ -40,8 +40,9 @@ func tagJsonAdd(w http.ResponseWriter, r *http.Request) {
 
 func tagJsonDelete(w http.ResponseWriter, r *http.Request) {
 	label := strings.TrimSpace(r.FormValue("label"))
-	if label == "" {
-		http.Error(w, fmt.Sprintf("Error label must be non-empty: %v", label), http.StatusBadRequest)
+	tagId, err := strconv.Atoi(r.FormValue("tag_id"))
+	if label == "" && tagId == 0 {
+		http.Error(w, fmt.Sprintf("Supply either label (%v) or tagId (%v)", label, tagId), http.StatusBadRequest)
 		return
 	}
 	personId, err := strconv.Atoi(r.FormValue("person_id"))
@@ -49,10 +50,15 @@ func tagJsonDelete(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Error parsing person_id: %v", err), http.StatusBadRequest)
 		return
 	}
-	tag, err := LoadTagByLabel(db, label)
-	if tag != nil {
-		err = DeletePeopleTag(db, tag.Id, personId)
+	if tagId == 0 {
+		tag, _ := LoadTagByLabel(db, label)
+		if tag == nil {
+			http.Error(w, fmt.Sprintf("Tag with specified label not found: %v", label), http.StatusBadRequest)
+			return
+		}
+		tagId = tag.Id
 	}
+	err = DeletePeopleTag(db, tagId, personId)
 	w.WriteHeader(http.StatusAccepted)
 }
 
