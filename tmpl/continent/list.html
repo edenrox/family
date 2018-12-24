@@ -1,22 +1,44 @@
 {{define "title"}}Continent list{{end}}
 {{define "content"}}
+<style type="text/css">
+.map {
+  width: 500px;
+  height: 250px;
+  float: right;
+}
+.color-block {
+  display: block;
+  width: 32px;
+  height: 20px;
+}
+@media (max-width: 767px) {
+  .map {
+    width: auto;
+    height: auto;
+    float: none;
+    display: block;
+    object-fit: contain;
+  }  
+}
+</style>
+</style>
   <div class="page-header">
     <h1>Continent list</h1>
   </div>
   <ul class="breadcrumb">
     <li class="active">Continents</li>
   </ul>
-  <img src="/assets/img/continents/all.png" style="width: 500px; height: 250px; float: right;"/>
-  <table class="table table-striped" style="width: 300px">
+  <img src="/assets/img/continents/all.png" class="map" />
+  <table class="table table-striped small-data-table">
     <thead>
       <tr><th>Code</th><th>Name</th><th>Color</th></tr>
     </thead>
     <tbody>
       {{range .}}
       <tr>
+        <td><div class="color-block" style="background-color: #{{.Color}};"></div></td>
         <td>{{.Code}}</td>
         <td><a href="/continent/view/{{.Code}}">{{.Name}}</a></td>
-        <td><div style="display: block; width: 32px; height: 20px; background-color: #{{.Color}};"></div></td>
       {{end}}
     </tbody>
   </table>

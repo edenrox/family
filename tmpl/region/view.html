@@ -9,7 +9,7 @@
     <li><a href="/country/view/{{.CountryCode}}">{{.CountryName}}</a> <span class="divider">&raquo;</span></li>
     <li class="active">{{.Name}}</li>
   </ul>
-  <table class="table table-striped" style="width: 300px;">
+  <table class="table table-striped small-data-table">
     <tbody>
       {{if .HasRegionIcon}}
       <tr>
@@ -40,7 +40,7 @@
   </table>
   {{end}}
   <h2>Cities</h2>
-  <table class="table table-striped" style="width:300px;">
+  <table class="table table-striped small-data-table">
     <thead>
       <tr><th>Name</th></tr>
     </thead>

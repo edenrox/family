@@ -1,0 +1,18 @@
+body {
+    overflow-y: scroll;
+}
+.small-data-table {
+    width: 400px;
+}
+
+@media (max-width: 767px) {
+    body {
+        padding: 0;
+    }
+    .container {
+        padding: 0 8px;
+    }
+    .small-data-table {
+        width: 100%;
+    }
+}
