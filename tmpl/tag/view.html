@@ -1,0 +1,44 @@
+{{define "title"}}Tag : {{.Tag.Label}}{{end}}
+{{define "content"}}
+  <div class="page-header">
+    <h1>{{.Tag.Label}}</h1>
+  </div>
+  <ul class="breadcrumb">
+    <li><a href="/tag/list">Tags</a> <span class="divider">&raquo;</span></li>
+    <li class="active">{{.Tag.Label}}</li>
+  </ul>
+  <h2 style="clear: left;">People</h2>
+  <div style="visibility: hidden;" id="tagId">{{.Tag.Id}}</div>
+  <table class="table table-striped" style="width:500px;">
+    <thead>
+      <tr><th>Name</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+      {{range .People}}
+      <tr>
+        <td><a href="/person/view/{{.Id}}">{{.Name}}</a></td>
+        <td><a href="#" data-person-id="{{.Id}}" class="btn btn-danger delete"><i class="icon-remove icon-white"></i> Delete</a></td></tr>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+  <p><a href="/tag/list" class="btn btn-primary">&laquo; Tag list</a></p>
+  <script type="text/javascript">
+  
+  $(function() {
+    var tagId = $('#tagId').text();
+    $('a.delete').click(function() {
+      var row = $(this).parents('tr');
+      var personId = $(this).attr('data-person-id');
+      $.ajax({
+        type: "POST",
+        url: "/tag/json/delete",
+        data: {person_id: personId, tag_id: tagId},
+        success: function(data) {
+          row.remove();
+        }});
+      return false;
+    })
+  });
+  </script>
+{{end}}

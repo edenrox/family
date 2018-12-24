@@ -1,0 +1,23 @@
+{{define "title"}}Tag list{{end}}
+{{define "content"}}
+  <div class="page-header">
+    <div style="float: right;"><a href="/tag/add" class="btn btn-primary"><i class="icon-plus icon-white"></i> Add a Tag</a></div>
+    <h1>Tag list</h1>
+  </div>
+  <ul class="breadcrumb">
+    <li class="active">Tags</li>
+  </ul>
+  <table class="table table-striped" style="width: 600px">
+    <thead>
+      <tr><th>Id</th><th>Label</th></tr>
+    </thead>
+    <tbody>
+      {{range .}}
+      <tr>
+        <td>{{.Id}}</td>
+        <td><a href="/tag/view/{{.Label}}">{{.Label}}</a></td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+{{end}}
