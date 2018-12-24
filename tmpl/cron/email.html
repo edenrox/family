@@ -1,5 +1,7 @@
 <p>Hi {{.Name}},</p>
 
+<p>Date: {{.StartDate.Format "Mon, Jan 2, 2006"}}</p>
+
 <p>Upcoming events:</p>
 <ul>
 {{range .Events}}
