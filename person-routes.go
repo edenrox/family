@@ -203,6 +203,16 @@ func personJsonSearch(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(people)
 }
 
+func personJsonFavorites(w http.ResponseWriter, r *http.Request) {
+	people, err := LoadPersonLiteListWithTag(db, "Favorites")
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error loading people: %v", err), 500)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(people)
+}
+
 func personGraph(w http.ResponseWriter, r *http.Request) {
 	personList, err := LoadPersonLiteList(db)
 	if err != nil {
@@ -253,6 +263,7 @@ func personDelete(w http.ResponseWriter, r *http.Request) {
 
 func addPersonRoutes() {
 	http.HandleFunc("/person/json/search", personJsonSearch)
+	http.HandleFunc("/person/json/favorites", personJsonFavorites)
 	http.HandleFunc("/person/list", personList)
 	http.HandleFunc("/person/calendar", personCalendar)
 	http.HandleFunc("/person/view/", personView)

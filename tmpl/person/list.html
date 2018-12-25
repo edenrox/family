@@ -89,14 +89,14 @@
     }
   }
 
-  function executeSearch(favoritesOnly) {
+  function executeSearch(isInitialLoad) {
     var prefix = $('#prefix').val();
     var results = $('#search_results');
     var url = '/person/json/search';
     url += '?prefix=' + encodeURIComponent(prefix);
     url += '&offset=' + encodeURIComponent(offset);
-    if (favoritesOnly) {
-      url += '&favorites_only=1';
+    if (isInitialLoad) {
+      url = '/person/json/favorites';
     }
 
     results.empty();
