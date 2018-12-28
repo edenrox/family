@@ -48,6 +48,11 @@ func LoadPeopleCalendar(db *sql.DB) (*PeopleCalendar, error) {
 		return nil, err
 	}
 
+	holidayList, err := LoadHolidaysByYear(db, time.Now().Year())
+	if err != nil {
+		return nil, err
+	}
+
 	calendar := PeopleCalendar{
 		Months: make([]CalendarMonth, 12),
 	}
@@ -63,6 +68,17 @@ func LoadPeopleCalendar(db *sql.DB) (*PeopleCalendar, error) {
 		}
 
 		events := make([]CalendarEvent, 0)
+
+		for _, value := range holidayList[0].Holidays {
+			if int(value.Date.Month()) == i+1 {
+				event := CalendarEvent{
+					Date:    value.Date,
+					Type:    "Holiday",
+					Caption: template.HTML(value.Name),
+				}
+				events = append(events, event)
+			}
+		}
 
 		for _, value := range (*personLookup)[i] {
 			var buf bytes.Buffer
