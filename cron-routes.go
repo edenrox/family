@@ -10,6 +10,7 @@ import (
 )
 
 func getMonday(input time.Time) time.Time {
+<<<<<<< HEAD
 	inputMidnight := time.Date(input.Year(), input.Month(), input.Day(), 0, 0, 0, 0, input.Location())
 	var numDaysToAdd = (8 - inputMidnight.Weekday()) % 7
 	return inputMidnight.Add(time.Hour * 24 * time.Duration(numDaysToAdd))
