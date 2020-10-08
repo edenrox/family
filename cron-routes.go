@@ -9,23 +9,20 @@ import (
 	"time"
 )
 
-func getNextMonday() time.Time {
-	now := time.Now()
-	now = time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
-	if now.Weekday() == time.Sunday {
-		return now.Add(time.Hour * 24 * 1)
-	}
-	return now.Add(time.Hour * 24 * time.Duration(8-now.Weekday()))
+func getMonday(input time.Time) time.Time {
+  	inputMidnight := time.Date(input.Year(), input.Month(), input.Day(), 0, 0, 0, 0, input.Location())
+  	var numDaysToAdd = (8 - inputMidnight.Weekday()) % 7
+  	return inputMidnight.Add(time.Hour * 24 * time.Duration(numDaysToAdd))
 }
 
 func cronReminders(w http.ResponseWriter, r *http.Request) {
 	var startTime time.Time
 	startTime, err := time.Parse("2006-01-02", r.FormValue("start_date"))
 	if err != nil {
-		startTime = getNextMonday()
+		startTime = getMonday(time.Now())
 	}
-	// End time is 2 weeks after the start time
-	endTime := startTime.Add(time.Hour * 24 * 14)
+	// End time is 4 weeks after the start time
+	endTime := startTime.Add(time.Hour * 24 * 28)
 
 	people, err := loadPeopleWithBirthday(db, startTime, endTime)
 	if err != nil {
