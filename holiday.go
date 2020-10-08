@@ -40,10 +40,11 @@ func LoadHolidaysByYear(db *sql.DB, startYear int) ([]YearHolidays, error) {
 func LoadHolidays(db *sql.DB, startYear int) ([]Holiday, error) {
 	defer trace(traceName(fmt.Sprintf("LoadHolidays(%d)", startYear)))
 	rows, err := db.Query(
-		"SELECT id, date, name"+
-			" FROM holidays "+
-			" WHERE date >=?"+
-			" ORDER BY date ASC", fmt.Sprintf("%04d-01-01", startYear))
+		"SELECT h.id, hi.date, h.name"+
+			" FROM holidays h "+
+			" INNER JOIN holiday_items hi ON h.id = hi.holiday_id"+
+			" WHERE hi.date >=?"+
+			" ORDER BY hi.date ASC", fmt.Sprintf("%04d-01-01", startYear))
 	if err != nil {
 		return nil, err
 	}
